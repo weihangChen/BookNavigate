@@ -1,0 +1,9 @@
+1. geckodriver.exe is needed to run selenium
+https://github.com/mozilla/geckodriver/releases
+
+2. dictionary needed to run NHunspell
+https://sourceforge.net/projects/aoo-extensions/?source=typ_redirect
+
+3. code example for NHunspell
+http://www.crawler-lib.net/csharp-code-samples-nhunspell
+
