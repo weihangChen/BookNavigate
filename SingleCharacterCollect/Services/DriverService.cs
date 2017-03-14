@@ -63,15 +63,16 @@ namespace SingleCharacterCollect.Services
                 if (firstPage)
                 {
                     driver.Navigate().GoToUrl(pageUrl);
-                    System.Threading.Thread.Sleep(500);
+                    //first start of browser takes long time
+                    System.Threading.Thread.Sleep(3000);
                     driver.SwitchTo().Frame(":0.reader");
                     //change the displaymode
                     driver.FindElementByXPath("//div[@aria-label='Visningsalternativ']").Click();
-                    System.Threading.Thread.Sleep(100);
+                    System.Threading.Thread.Sleep(1000);
                     driver.FindElementByXPath("//div[contains(@id, 'readingMode')]").Click();
-                    System.Threading.Thread.Sleep(100);
+                    System.Threading.Thread.Sleep(1000);
                     driver.FindElementByXPath("//div[contains(., 'Ursprungliga sidor')]").Click();
-                    System.Threading.Thread.Sleep(500);
+                    System.Threading.Thread.Sleep(1000);
                     driver.FindElementByXPath("//div[@title='Stäng']").Click();
 
                     //get the pagianation button
