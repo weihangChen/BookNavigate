@@ -17,7 +17,7 @@ namespace SingleCharacterCollect
             var service = new SingleCharacterCollect.Services.DriverService();
             service.GatherResource();
 
-            Console.WriteLine("-----------END---------");
+            Console.WriteLine("----------- END ---------");
             Console.ReadLine();
         }
     }
