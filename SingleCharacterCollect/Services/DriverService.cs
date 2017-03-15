@@ -3,6 +3,9 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using SingleCharacterCollect.Models;
 using log4net;
+using SingleCharacterCollect.Extensions;
+using System.Drawing;
+using System.Net.Http;
 
 namespace SingleCharacterCollect.Services
 {
@@ -14,7 +17,6 @@ namespace SingleCharacterCollect.Services
     public class DriverService : IDriverService
     {
         FirefoxDriver driver;
-        IImageService imageService;
         ISpellService spellService;
         log4net.ILog Logger;
 
@@ -23,10 +25,12 @@ namespace SingleCharacterCollect.Services
             driver = new FirefoxDriver();
             //wait 10 seconds for browser to load a url
             driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(10);
-            imageService = new ImageService();
+
             spellService = new SpellService();
             Logger = LogManager.GetLogger("test");
         }
+
+
 
         public void GatherResource()
         {
@@ -54,8 +58,6 @@ namespace SingleCharacterCollect.Services
         /// <param name="bookUrl"></param>
         public void NavigateThrougOneBook(string pageUrl, int consecutiveErrorCount, bool firstPage, ProcessHistory history, IWebElement nextButton = null)
         {
-
-            //IWebElement nextButton = default(IWebElement);
             if (consecutiveErrorCount > 10)
                 return;
             try
@@ -65,7 +67,10 @@ namespace SingleCharacterCollect.Services
                     driver.Navigate().GoToUrl(pageUrl);
                     //first start of browser takes long time
                     System.Threading.Thread.Sleep(3000);
+                    //need to go to the correct iframe
                     driver.SwitchTo().Frame(":0.reader");
+
+                    
                     //change the displaymode
                     driver.FindElementByXPath("//div[@aria-label='Visningsalternativ']").Click();
                     System.Threading.Thread.Sleep(1000);
@@ -109,11 +114,53 @@ namespace SingleCharacterCollect.Services
         }
 
         /// <summary>
-        /// process each page
+        /// take a screen shot, crop the reading session, save it without scaling
+        /// if view book in templte2 this method is adopted
+        /// </summary>
+        public void ProcessOnePage2()
+        {
+            var shot = driver.GetScreenshot();
+            var fullImg = shot.AsByteArray.FromBytesToImage();
+            var ele = driver.FindElementByXPath("//div[@role='main']");
+            var point = ele.Location;
+
+            // Get width and height of the element
+            int eleWidth = ele.Size.Width;
+            int eleHeight = ele.Size.Height;
+
+            // Crop the entire page screenshot to get only element screenshot
+            var eleScreenshot = fullImg.CropImage(new Rectangle(point.X, point.Y,
+                eleWidth, eleHeight));
+            eleScreenshot.Save($"C:/Users/weihang/Desktop/0315/{Guid.NewGuid()}.jpg");
+        }
+
+        /// <summary>
+        /// if view booking in template1 this method is adopted
+        /// just download the image
+        /// https://books.googleusercontent.com/books/content/reader?id=nH15DQAAQBAJ&hl=sv&pg=PT8&img=1&zoom=3&sig=ACfU3U2QmuDH1GCB7qFCLvk4YDieaZyqhg&source=ge-web-app&w=673
         /// </summary>
         public void ProcessOnePage()
         {
-            imageService.ProcessImage();
+            var imgs = driver.FindElementsByTagName("img");
+            string url = "";
+            foreach (var img in imgs)
+            {
+                var location = img.Location;
+                var src = img.GetAttribute("src");
+                if (location.X != 0 && location.Y != 0 && !string.IsNullOrEmpty(src))
+                {
+                    url = src;
+                    break;
+                }
+            }
+            if (string.IsNullOrEmpty(url))
+                throw new Exception("book image not found");
+            using (var client = new HttpClient())
+            {
+                var data = client.GetByteArrayAsync(new Uri(url)).Result;
+                data.FromBytesToFile($"C:/Users/weihang/Desktop/0315/{Guid.NewGuid()}.jpg");
+            }
+
         }
 
 
