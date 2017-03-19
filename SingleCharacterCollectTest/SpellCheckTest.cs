@@ -9,12 +9,13 @@ namespace SingleCharacterCollectTest
     public class SpellCheckTest
     {
         [TestMethod]
-        public void TestMethod1()
+        public void SpellTest()
         {
             using (Hunspell hunspell = new Hunspell("DLL/en_us.aff", "DLL/en_us.dic"))
             {
                 Assert.IsTrue(hunspell.Spell("Recommendation"));
                 Assert.IsFalse(hunspell.Spell("Recommendaton"));
+                
             }
         }
     }
