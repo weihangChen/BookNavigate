@@ -15,11 +15,6 @@ namespace infrastructure.Services
 
     public class ImageProcessingService : IOpenCVService
     {
-        public ImageProcessingService()
-        {
-        }
-
-
         public List<Contour<Point>> ExtractContours(Bitmap inputImg)
         {
             var contours = new List<Contour<Point>>();
@@ -29,13 +24,9 @@ namespace infrastructure.Services
                 {
                     var c = grayFrame.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_NONE,
                         Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST);
-                    //while (c != null)
-                    //{
-                    //    contours.Add(c);
-                    //    c = c.HNext;
-                    //}
+
                     contours = FilterContours(c, grayFrame, filterContoursBySize: true, noiseFilter: true);
-          
+
                 }
             }
 
