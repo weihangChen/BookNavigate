@@ -1,6 +1,8 @@
 # BookNavigate
-This purpose of this project is to gather printed word/char by scanning google open book. The gathered word/char images can serve as 
-machine learning training dataset. Two projects are included: **BookDownloader** and **BookImageProcessor**
+This purpose of this project is to gather printed word/char images as training data for machine learning task. 
+* To gather word level data, google open book is scanned, then the original data can be synthetized. These three projects need to be run in proper order: **BookDownloader** - **BookImageProcessor** - **ImageSynthesizer**
+
+* To gather single char level data, windows font images containing single char are generated, then the original data can be synthetized. These two projects need to be run in proper order: **CharGenerator** - **ImageSynthesizer**
 
 ## BookDownloader
 Use selenium to navigate through google open books and download each book page as one image and save to harddisk. 
