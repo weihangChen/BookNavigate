@@ -5,10 +5,7 @@ namespace Infrastructure.Extensions
 {
     public static class StringExtensions
     {
-        public static int GetContourCountForChar(this string c)
-        {
-            return StringResources.ContoursPerChar[c];
-        }
+        
 
         public static bool ContainsOnlySpecificSetOfChars(this string str, string stringSet)
         {
@@ -23,6 +20,7 @@ namespace Infrastructure.Extensions
             }
             return containOnlyValidStringSet;
         }
+        
 
 
 

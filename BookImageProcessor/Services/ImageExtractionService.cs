@@ -4,18 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Infrastructure.Extensions;
-using Microsoft.ProjectOxford.Vision.Contract;
 using System.Drawing;
 using Infrastructure.Models;
-using infrastructure.Services;
-using Emgu.CV;
 using System;
+using Infrastructure.Services;
+using Microsoft.ProjectOxford.Vision.Contract;
 
 namespace BookImageProcessor.Services
 {
     public interface IImageExtractionService
     {
-        Task ExtractChars();
+        Task ExtractDataFromImage(bool wordOrChar = true);
 
     }
     public class ImageExtractionService : IImageExtractionService
@@ -23,16 +22,17 @@ namespace BookImageProcessor.Services
         static readonly string BookBaseDir = ConfigurationManager.AppSettings.Get("BookDataPath");
         const int ValidWordDigitCount = 4;
         const int WordLimit = 30;
+        const int WordHeight = 32;
 
         ISpellService SpellService;
         IVisionService VisionService;
-        IOpenCVService OpenCVService;
+        ImageProcessor OpenCVService;
 
         public ImageExtractionService()
         {
             VisionService = new VisionService(ConfigurationManager.AppSettings["OxfordKey"]);
             SpellService = new SpellService();
-            OpenCVService = new ImageProcessingService();
+            OpenCVService = new ImageProcessor();
         }
 
         protected void CreateFolders(List<string> imagePathsWithinOneBook)
@@ -43,7 +43,7 @@ namespace BookImageProcessor.Services
             }
         }
 
-        public async Task ExtractChars()
+        public async Task ExtractDataFromImage(bool wordOrChar = true)
         {
             //one folder per book 
             foreach (var bookDir in Directory.GetDirectories(BookBaseDir))
@@ -59,13 +59,20 @@ namespace BookImageProcessor.Services
 
                     var pageImagePath = pageImage.Replace(".jpg", "");
                     Directory.CreateDirectory(pageImagePath);
-                    ExtractWordIntoSingileChar(pageImageBytes, words, pageImagePath);
 
+                    if (wordOrChar)
+                        ExtractWordIntoWords(pageImageBytes, words, pageImagePath);
+                    else
+                    {
+
+                    }
 
 
                 }
             }
         }
+
+
 
 
         protected async Task<List<Word>> OCROnePage(byte[] pageImageBytes)
@@ -88,13 +95,18 @@ namespace BookImageProcessor.Services
 
 
         //crop the bounding box from original image and save to disk
-        protected void ExtractWordIntoSingileChar(byte[] pageBytes, IEnumerable<Word> words, string pageImagePath)
+        protected void ExtractWordIntoWords(byte[] pageBytes, IEnumerable<Word> words, string pageImagePath)
         {
+            var positionOffset = 2;
+            var sizeOffset = 4;
             var fullImg = pageBytes.FromBytesToImage();
             foreach (var word in words)
             {
-                var convertedWordRec = new System.Drawing.Rectangle(word.Rectangle.Left, word.Rectangle.Top,
-                                                   word.Rectangle.Width, word.Rectangle.Height);
+                //leave 1 pixel space at the left, one pixel at right
+                var convertedWordRec = new System.Drawing.Rectangle(word.Rectangle.Left - positionOffset,
+                                                                    word.Rectangle.Top - positionOffset,
+                                                                    word.Rectangle.Width + sizeOffset,
+                                                                    word.Rectangle.Height + sizeOffset);
                 using (var wordImg = fullImg.CropImage(convertedWordRec) as Bitmap)
                 {
                     //generated contours should be ordrered from left to right, and been through merging 
@@ -119,6 +131,11 @@ namespace BookImageProcessor.Services
             //dispose fullimg
             fullImg.Dispose();
         }
+
+
+
+
+
 
 
 

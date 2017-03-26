@@ -97,6 +97,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="FontTest.cs" />
     <Compile Include="OpenCVTest.cs" />
     <Compile Include="SpellCheckTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -108,7 +109,6 @@
     <Content Include="DLL\en_us.dic">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Files\test.JPG" />
     <Content Include="x86\cudart32_65.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -157,10 +157,25 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BookDownloader\BookDownloader.csproj">
+      <Project>{e0341feb-e8e9-4457-8576-b5e15be9f049}</Project>
+      <Name>BookDownloader</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BookImageProcessor\BookImageProcessor.csproj">
       <Project>{f00657bf-0ce6-44fd-82ac-548e5d65c209}</Project>
       <Name>BookImageProcessor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CharGenerator\CharGenerator.csproj">
+      <Project>{e9a153f9-104f-4fbe-b0b3-2b0baccdec7f}</Project>
+      <Name>CharGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\infrastructure\Infrastructure.csproj">
+      <Project>{b0d5ae58-2cfa-45e9-b429-2cb4443d770c}</Project>
+      <Name>Infrastructure</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Files\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -1,8 +1,5 @@
 ﻿using BookImageProcessor.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BookImageProcessor
@@ -11,12 +8,10 @@ namespace BookImageProcessor
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("-----------START---------");
 
+            Console.WriteLine("-----------START---------");
             IImageExtractionService service = new ImageExtractionService();
-            Action test =()=> service.ExtractChars();
-            
-            Task.Run(()=>service.ExtractChars()).Wait();
+            Task.Run(() => service.ExtractDataFromImage()).Wait();
             Console.WriteLine("----------- END ---------");
             Console.ReadLine();
         }

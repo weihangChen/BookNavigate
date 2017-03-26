@@ -1,11 +1,7 @@
 ﻿using NHunspell;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BookImageProcessor.Services
+namespace Infrastructure.Services
 {
     public interface ISpellService
     {
@@ -32,4 +28,3 @@ namespace BookImageProcessor.Services
         }
     }
 }
-

@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SingleCharacterCollectTest", "SingleCharacterCollectTest\SingleCharacterCollectTest.csproj", "{F60CC69E-A135-40C3-A9DD-A5476BCA8133}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F00657BF-0CE6-44FD-82AC-548E5D65C209} = {F00657BF-0CE6-44FD-82AC-548E5D65C209}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "infrastructure\Infrastructure.csproj", "{B0D5AE58-2CFA-45E9-B429-2CB4443D770C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookDownloader", "BookDownloader\BookDownloader.csproj", "{E0341FEB-E8E9-4457-8576-B5E15BE9F049}"
@@ -17,16 +12,24 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookImageProcessor", "BookI
 		{B0D5AE58-2CFA-45E9-B429-2CB4443D770C} = {B0D5AE58-2CFA-45E9-B429-2CB4443D770C}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SingleCharacterCollectTest", "SingleCharacterCollectTest\SingleCharacterCollectTest.csproj", "{F60CC69E-A135-40C3-A9DD-A5476BCA8133}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E9A153F9-104F-4FBE-B0B3-2B0BACCDEC7F} = {E9A153F9-104F-4FBE-B0B3-2B0BACCDEC7F}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CharGenerator", "CharGenerator\CharGenerator.csproj", "{E9A153F9-104F-4FBE-B0B3-2B0BACCDEC7F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B0D5AE58-2CFA-45E9-B429-2CB4443D770C} = {B0D5AE58-2CFA-45E9-B429-2CB4443D770C}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageSynthesizer", "ImageSynthesizer\ImageSynthesizer.csproj", "{2AA0AE39-4AB9-4EE4-864B-37206D6149C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F60CC69E-A135-40C3-A9DD-A5476BCA8133}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F60CC69E-A135-40C3-A9DD-A5476BCA8133}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F60CC69E-A135-40C3-A9DD-A5476BCA8133}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F60CC69E-A135-40C3-A9DD-A5476BCA8133}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B0D5AE58-2CFA-45E9-B429-2CB4443D770C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B0D5AE58-2CFA-45E9-B429-2CB4443D770C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0D5AE58-2CFA-45E9-B429-2CB4443D770C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +42,18 @@ Global
 		{F00657BF-0CE6-44FD-82AC-548E5D65C209}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F00657BF-0CE6-44FD-82AC-548E5D65C209}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F00657BF-0CE6-44FD-82AC-548E5D65C209}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F60CC69E-A135-40C3-A9DD-A5476BCA8133}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F60CC69E-A135-40C3-A9DD-A5476BCA8133}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F60CC69E-A135-40C3-A9DD-A5476BCA8133}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F60CC69E-A135-40C3-A9DD-A5476BCA8133}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9A153F9-104F-4FBE-B0B3-2B0BACCDEC7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9A153F9-104F-4FBE-B0B3-2B0BACCDEC7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9A153F9-104F-4FBE-B0B3-2B0BACCDEC7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9A153F9-104F-4FBE-B0B3-2B0BACCDEC7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AA0AE39-4AB9-4EE4-864B-37206D6149C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AA0AE39-4AB9-4EE4-864B-37206D6149C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AA0AE39-4AB9-4EE4-864B-37206D6149C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AA0AE39-4AB9-4EE4-864B-37206D6149C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
