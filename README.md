@@ -30,10 +30,10 @@ extract single character images from various windows and google fonts. Windows f
 
 ### Configuration
 
-* Configure App.config - appsetting - ExportDir, Location there char images will be exported to 
-* Configure App.config - appsetting - GeneratedChars, a complete string containing all chars that should be exported as images
-* Configure App.config - appsetting - GoogleFontDir, after downloaded the complete google font project from git, the "ofl" folder
-* Configure App.config - appsetting - DefaultExportFontSize, the default font size used to generate image
+* App.config - appsetting - ExportDir, Location there char images will be exported to 
+* App.config - appsetting - GeneratedChars, a complete string containing all chars that should be exported as images
+* App.config - appsetting - GoogleFontDir, after downloaded the complete google font project from git, the "ofl" folder
+* App.config - appsetting - DefaultExportFontSize, the default font size used to generate image
 
 
 
