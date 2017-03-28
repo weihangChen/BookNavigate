@@ -99,6 +99,7 @@
     <Compile Include="Models\Axis.cs" />
     <Compile Include="Models\BigStringType.cs" />
     <Compile Include="Models\CropStrategy.cs" />
+    <Compile Include="Models\FontData.cs" />
     <Compile Include="Models\FontResource.cs" />
     <Compile Include="Models\GraphicConfig.cs" />
     <Compile Include="Models\ImageData.cs" />

@@ -688,6 +688,47 @@ namespace Infrastructure.Services
 
 
 
+        public void Test(Bitmap inputImg)
+        {
+            using (var frame = new Image<Bgr, byte>(inputImg))
+            {
+                using (var grayFrame = frame.Convert<Gray, Byte>())
+                {
+                    //autocontrast
+                    grayFrame._EqualizeHist();
+                    grayFrame._GammaCorrect(1.8d);
+                    ////binarize
+                    //CvInvoke.cvAdaptiveThreshold(grayFrame, grayFrame, 255,
+                    //    Emgu.CV.CvEnum.ADAPTIVE_THRESHOLD_TYPE.CV_ADAPTIVE_THRESH_MEAN_C,
+                    //    Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY, 3 + 3 % 2 + 1, 1.2d);
+
+                    try
+                    {
+
+                        CvInvoke.cvAdaptiveThreshold(grayFrame, grayFrame, 255,
+                            Emgu.CV.CvEnum.ADAPTIVE_THRESHOLD_TYPE.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
+                            Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY, 3 + 3 % 2 + 1, 0.2d);
+
+
+                        grayFrame.Bitmap.Save(@"D:\Test\ok1.jpg");
+                        //revert
+                        //grayFrame._Not();
+                        //var c = grayFrame.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_NONE,
+                        //    Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST);
+
+
+                    }
+                    catch (Exception e)
+                    {
+                        var ttt = e.ToString();
+                    }
+
+                }
+            }
+
+
+        }
+
 
 
 

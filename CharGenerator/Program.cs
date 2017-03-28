@@ -1,20 +1,49 @@
 ﻿using Infrastructure.Models;
-using Infrastructure.SingleImageProcessing;
-using System.Collections.Generic;
+using System;
+using System.Configuration;
+using System.IO;
+using System.Linq;
+
 namespace CharGenerator
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var imageDecorators = new List<IImageDecorator>();
-            imageDecorators.Add(new ResizeDecorator(32, 32));
-            //imageDecorators.Add(new NormalizeDecorator(CropStrategy.CropToEdge));
+            FontImageExporter exporter = new FontImageExporter();
+            Console.WriteLine("export 14 windows font or 1900 google font. '1' or '2'");
+            var command = Console.ReadLine();
+            int fontSize = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultExportFontSize"]);
+            if (command.Equals("2"))
+            {
+                var googleFontDir = ConfigurationManager.AppSettings["GoogleFontDir"];
+                var googleFontDirs = Directory.GetDirectories(googleFontDir)
+                                        .SelectMany(x => Directory.GetFiles(x)
+                                        .Where(m => m.Contains(".ttf")))
+                                        .ToList();
+                var googleFontDatas = googleFontDirs.Select(x =>
+                {
+                    var tmp = x.Split('\\');
+                    var fontName = tmp[tmp.Length - 1].Replace(".ttf", "").Trim();
+                    var e = new GoogleFont(fontName: fontName, fontSize: fontSize, fontPath: x);
+                    return (FontData)e;
+                }).ToList();
 
+                exporter.ExportFontData(googleFontDatas);
+            }
+            else if (command.Equals("1"))
+            {
 
-            var exporter = new FontImagePersistentExporter();
+                var windowsFont = FontResource.Fonts_Small.Select(x =>
+                {
+                    var font = new WindowsFont(x, fontSize);
+                    return (FontData)font;
+                }).ToList();
+                exporter.ExportFontData(windowsFont);
+            }
 
-            var dto = exporter.ExportFontImages(FontResource.Fonts_Small, imageDecorators);
+            Console.WriteLine("END");
+
         }
     }
 }

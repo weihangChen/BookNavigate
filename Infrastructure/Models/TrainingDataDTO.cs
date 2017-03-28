@@ -22,12 +22,12 @@ namespace Infrastructure.Models
         }
         public List<ImageData> ImageDatas { get; set; }
     }
-    public class TrainingDataDTOWindowsFont : TrainingDataDTO
+    public class TrainingFontDataSet : TrainingDataDTO
     {
         public List<ImageData> ImageDatas { get; set; }
         public Rectangle containerRect { get; set; }
 
-        public TrainingDataDTOWindowsFont()
+        public TrainingFontDataSet()
         {
             ImageDatas =  new List<ImageData>();
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Infrastructure.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
@@ -15,14 +16,19 @@ namespace ImageSynthesizer
             var folders = Directory.GetDirectories(path);
 
             var synthesizer = new Synthesizer();
-            foreach (var folder in folders)
-            {
-                var images = Directory.GetFiles(folder)
-                    .Select(x => Image.FromFile(x))
-                    .ToList();
-                synthesizer.ProcessImages(images);
+            //foreach (var folder in folders)
+            //{
+            //    var dto = new TrainingDataDTOWindowsFont();
+            //    var imageDatas = Directory.GetFiles(folder)
+            //        .Select(x => new ImageData {
+            //            bitmap = Image.FromFile(x) as Bitmap,
+            //            HardDiskPath = new DirectoryInfo(folder.ToString())
+            //        })
+            //        .ToList();
+            //    dto.ImageDatas = imageDatas;
+            //    synthesizer.ProcessImages(dto);
 
-            }
+            //}
 
         }
     }
