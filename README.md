@@ -12,12 +12,10 @@ Use selenium to navigate through google open books and download each book page a
 * Configure App.config - appsetting - BookDataPath, so the program knows where to save the images in the harddrive
 * Configure Book.cs, so the program knows which books to navigate
 
-### Execution
-run it as console app
 
 
 ## BookImageProcessor
-extract word/char from the images extracted from **BookDownloader** using OpenCV + Oxford
+extract word images from the images extracted from **BookDownloader** using OCR Service - Oxford
 
 ### Configuration
 
@@ -26,7 +24,22 @@ extract word/char from the images extracted from **BookDownloader** using OpenCV
 * Configure App.config - appsetting - OxfordKey
 
 
-### Execution
-run it as console app
+
+## CharGenerator
+extract single character images from various windows and google fonts. Windows fonts come with operating system, google fonts can be downloaded here, https://github.com/google/fonts
+
+### Configuration
+
+* Configure App.config - appsetting - ExportDir, Location there char images will be exported to 
+* Configure App.config - appsetting - GeneratedChars, a complete string containing all chars that should be exported as images
+* Configure App.config - appsetting - GoogleFontDir, after downloaded the complete google font project from git, the "ofl" folder
+* Configure App.config - appsetting - DefaultExportFontSize, the default font size used to generate image
+
+
+
+
+
+
+
 
 
