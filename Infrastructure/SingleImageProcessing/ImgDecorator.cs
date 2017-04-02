@@ -3,7 +3,7 @@
 
 namespace Infrastructure.SingleImageProcessing
 {
-    public interface IImageDecorator
+    public interface ImgDecorator
     {
         void ProcessImage(ImageData image);
     }

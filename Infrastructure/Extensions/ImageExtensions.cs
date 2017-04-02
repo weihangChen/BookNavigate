@@ -1,4 +1,5 @@
 ﻿using Emgu.CV;
+using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Infrastructure.Models;
 using System;
@@ -34,19 +35,7 @@ namespace Infrastructure.Extensions
             return File.ReadAllBytes(path);
         }
 
-        public static List<Contour<Point>> AsContourList(this Contour<Point> contours)
-        {
-            var c = contours;
-            List<Contour<Point>> result = new List<Contour<Point>>();
-            while (c != null)
-            {
-                result.Add(c);
-                
-                c = c.HNext;
-            }
-
-            return result;
-        }
+       
 
         public static byte[] ImageToByte(this Image img)
         {
@@ -63,7 +52,7 @@ namespace Infrastructure.Extensions
         public static Bitmap Rezie(this Bitmap image, int width, int height)
         {
             Image<Bgr, byte> img = new Image<Bgr, byte>(image);
-            Image<Bgr, byte> cpimg = img.Resize(width, height, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
+            Image<Bgr, byte> cpimg = img.Resize(width, height, Inter.Linear);
             return cpimg.Bitmap;
         }
 

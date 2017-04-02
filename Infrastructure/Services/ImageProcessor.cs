@@ -7,6 +7,7 @@ using System.Linq;
 using Infrastructure.Extensions;
 using log4net;
 using Infrastructure.Models;
+using Emgu.CV.Util;
 
 namespace Infrastructure.Services
 {
@@ -29,16 +30,8 @@ namespace Infrastructure.Services
         public int minContourLength = 20;
         public int minContourArea = 10;
         public double minFormFactor = 0.5;
-        //
-        public List<Contour<Point>> contours;
-        //public Templates templates = new Templates();
-        //public Templates samples = new Templates();
-        //public List<FoundTemplateDesc> foundTemplates = new List<FoundTemplateDesc>();
-        //public TemplateFinder finder = new TemplateFinder();
-        //public Image<Gray, byte> binarizedFrame;
-        public Image<Gray, byte> frame;
 
-        //
+        public Image<Gray, byte> frame;
         private Image<Gray, byte> grayFrame;
         private Image<Gray, byte> smoothedGrayFrame;
         private Image<Gray, byte> cannyFrame;
@@ -46,7 +39,6 @@ namespace Infrastructure.Services
         public ImageProcessor()
         {
             Logger = LogManager.GetLogger(this.GetType());
-            // Callback = new GenericCallbacks();
         }
 
 
@@ -116,104 +108,104 @@ namespace Infrastructure.Services
 
 
 
-        public List<Contour<Point>> GenerateContours(Image<Bgr, byte> frame)
-        {
+        //public List<Contour<Point>> GenerateContours(Image<Bgr, byte> frame)
+        //{
 
-            //frame is memory leak 1, dispose somewhere else 
-            //memory leak 2
-            grayFrame = frame.Convert<Gray, Byte>();
-            //memory leak 3
-            this.frame = grayFrame.Clone();
+        //    //frame is memory leak 1, dispose somewhere else 
+        //    //memory leak 2
+        //    grayFrame = frame.Convert<Gray, Byte>();
+        //    //memory leak 3
+        //    this.frame = grayFrame.Clone();
 
-            if (equalizeHist)
-                grayFrame._EqualizeHist();//autocontrast
+        //    if (equalizeHist)
+        //        grayFrame._EqualizeHist();//autocontrast
 
-            //smoothed
-            //memory leak 4
-            smoothedGrayFrame = grayFrame.PyrDown();
-            //memory leak 5
-            smoothedGrayFrame = smoothedGrayFrame.PyrUp();
-            //canny 
+        //    //smoothed
+        //    //memory leak 4
+        //    smoothedGrayFrame = grayFrame.PyrDown();
+        //    //memory leak 5
+        //    smoothedGrayFrame = smoothedGrayFrame.PyrUp();
+        //    //canny 
 
-            if (noiseFilter)
-                //memory leak 6
-                //cannyFrame = smoothedGrayFrame.Canny(new Gray(cannyThreshold), new Gray(cannyThreshold));
-                cannyFrame = smoothedGrayFrame.Canny(cannyThreshold, cannyThreshold);
-            //smoothing
-            if (blur)
-                grayFrame = smoothedGrayFrame;
-            //binarize
-            CvInvoke.cvAdaptiveThreshold(grayFrame, grayFrame, 255, Emgu.CV.CvEnum.ADAPTIVE_THRESHOLD_TYPE.CV_ADAPTIVE_THRESH_MEAN_C, Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY, adaptiveThresholdBlockSize + adaptiveThresholdBlockSize % 2 + 1, adaptiveThresholdParameter);
-            //
-            grayFrame._Not();
-            //
-            if (addCanny)
-                if (cannyFrame != null)
-                    grayFrame._Or(cannyFrame);
-            //
-            //this.binarizedFrame = grayFrame;
+        //    if (noiseFilter)
+        //        //memory leak 6
+        //        //cannyFrame = smoothedGrayFrame.Canny(new Gray(cannyThreshold), new Gray(cannyThreshold));
+        //        cannyFrame = smoothedGrayFrame.Canny(cannyThreshold, cannyThreshold);
+        //    //smoothing
+        //    if (blur)
+        //        grayFrame = smoothedGrayFrame;
+        //    //binarize
+        //    CvInvoke.cvAdaptiveThreshold(grayFrame, grayFrame, 255, Emgu.CV.CvEnum.ADAPTIVE_THRESHOLD_TYPE.CV_ADAPTIVE_THRESH_MEAN_C, Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY, adaptiveThresholdBlockSize + adaptiveThresholdBlockSize % 2 + 1, adaptiveThresholdParameter);
+        //    //
+        //    grayFrame._Not();
+        //    //
+        //    if (addCanny)
+        //        if (cannyFrame != null)
+        //            grayFrame._Or(cannyFrame);
+        //    //
+        //    //this.binarizedFrame = grayFrame;
 
-            //dilate canny contours for filtering
-            //memory leak 7
-            if (cannyFrame != null)
-                cannyFrame = cannyFrame.Dilate(3);
+        //    //dilate canny contours for filtering
+        //    //memory leak 7
+        //    if (cannyFrame != null)
+        //        cannyFrame = cannyFrame.Dilate(3);
 
-            //find contours
-            var sourceContours = grayFrame.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_NONE, Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST);
-            //filter contours
-            contours = FilterContours(sourceContours, cannyFrame, grayFrame.Width, grayFrame.Height);
+        //    //find contours
+        //    var sourceContours = grayFrame.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_NONE, Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST);
+        //    //filter contours
+        //    contours = FilterContours(sourceContours, cannyFrame, grayFrame.Width, grayFrame.Height);
 
-            //TODO 1206
-            //keep the grayframe, because binaryframe is same as grayframe, the contours to images part still require the grayframe, using the original frame
-            //have problems like background color etc. revert the black and white here for binaryframe
-            //remove one memory leak works
-            //ClearEMGUCVMemory(cannyFrame);
-            //remove one memory leak works
-            grayFrame._Not();
-            //ClearEMGUCVMemory(grayFrame);
-            //remove one memory leak not working
-            //ClearEMGUCVMemory(smoothedGrayFrame);
-
-
-
-            return contours;
-
-        }
+        //    //TODO 1206
+        //    //keep the grayframe, because binaryframe is same as grayframe, the contours to images part still require the grayframe, using the original frame
+        //    //have problems like background color etc. revert the black and white here for binaryframe
+        //    //remove one memory leak works
+        //    //ClearEMGUCVMemory(cannyFrame);
+        //    //remove one memory leak works
+        //    grayFrame._Not();
+        //    //ClearEMGUCVMemory(grayFrame);
+        //    //remove one memory leak not working
+        //    //ClearEMGUCVMemory(smoothedGrayFrame);
 
 
+
+        //    return contours;
+
+        //}
 
 
 
 
 
-        private List<Contour<Point>> FilterContours(Contour<Point> contours, Image<Gray, byte> cannyFrame, int frameWidth, int frameHeight)
-        {
-            int maxArea = frameWidth * frameHeight / 5;
-            var c = contours;
-            List<Contour<Point>> result = new List<Contour<Point>>();
-            while (c != null)
-            {
-                if (filterContoursBySize)
-                    if (c.Total < minContourLength ||
-                        c.Area < minContourArea || c.Area > maxArea ||
-                        c.Area / c.Total <= minFormFactor)
-                        goto next;
 
-                if (noiseFilter)
-                {
-                    Point p1 = c[0];
-                    Point p2 = c[(c.Total / 2) % c.Total];
-                    if (cannyFrame[p1].Intensity <= double.Epsilon && cannyFrame[p2].Intensity <= double.Epsilon)
-                        goto next;
-                }
-                result.Add(c);
 
-                next:
-                c = c.HNext;
-            }
+        //private List<Contour<Point>> FilterContours(Contour<Point> contours, Image<Gray, byte> cannyFrame, int frameWidth, int frameHeight)
+        //{
+        //    int maxArea = frameWidth * frameHeight / 5;
+        //    var c = contours;
+        //    List<Contour<Point>> result = new List<Contour<Point>>();
+        //    while (c != null)
+        //    {
+        //        if (filterContoursBySize)
+        //            if (c.Total < minContourLength ||
+        //                c.Area < minContourArea || c.Area > maxArea ||
+        //                c.Area / c.Total <= minFormFactor)
+        //                goto next;
 
-            return result;
-        }
+        //        if (noiseFilter)
+        //        {
+        //            Point p1 = c[0];
+        //            Point p2 = c[(c.Total / 2) % c.Total];
+        //            if (cannyFrame[p1].Intensity <= double.Epsilon && cannyFrame[p2].Intensity <= double.Epsilon)
+        //                goto next;
+        //        }
+        //        result.Add(c);
+
+        //        next:
+        //        c = c.HNext;
+        //    }
+
+        //    return result;
+        //}
 
 
 
@@ -222,162 +214,6 @@ namespace Infrastructure.Services
 
         #region divide data into rows + perform merging of contours
 
-        /// <summary>
-        /// contours that lies closed to each other, are grouped together, form a new convex hull
-        /// then get classified again 
-        ///
-        /// TODO
-        /// we assume that the all imageDatas are already sorted by rectangle-X
-        /// </summary>
-        /// <param name="ImageDatasPerRow"></param>
-        /// <param name="BigString"></param>
-
-
-        //public void MergeContours(List<ImageDatasPerRow> ImageDatasPerRow, bool cropFromOriginBitmap, Func<int, bool> HaltCallback = null, Func<Bitmap, Bitmap> ImagePostProcessingCallback = null)
-        //{
-        //    foreach (var row in ImageDatasPerRow)
-        //    {
-        //        var imageDatas = row.ImageDatas;
-        //        var total = imageDatas.Count();
-
-
-        //        //check two digits every time
-        //        var ImageDatasMerging = new List<ImageDataMerging>();
-        //        for (var i = 0; i < total; i++)
-        //        {
-        //            var current = imageDatas[i];
-        //            if (current.IsBadData)
-        //                continue;
-
-
-        //            ImageData right1 = null;
-        //            ImageData right2 = null;
-        //            bool IsCurrentIntersectedWithRight1 = false;
-        //            bool IsCurrentIntersectedWithRight2 = false;
-
-
-        //            //use try catch to bypass the outofindex exception
-        //            try
-        //            {
-        //                right1 = imageDatas[i + 1];
-        //                right2 = imageDatas[i + 2];
-        //            }
-        //            catch (Exception e)
-        //            {
-
-        //            }
-        //            var mergingImageDatas = new List<ImageData>();
-
-
-        //            if (right1 != null)
-        //                IsCurrentIntersectedWithRight1 = IsIntersectX(current, right1);
-
-        //            if (right2 != null)
-        //                IsCurrentIntersectedWithRight2 = IsIntersectX(current, right2);
-
-        //            //after checking intersectionX for two position, start the merging, only keep the first one, abamdon the next ones
-
-        //            if (IsCurrentIntersectedWithRight1 || IsCurrentIntersectedWithRight2)
-        //            {
-        //                mergingImageDatas.Add(current);
-        //                if (IsCurrentIntersectedWithRight1)
-        //                {
-        //                    right1.IsBadData = true;
-        //                    mergingImageDatas.Add(right1);
-        //                }
-        //                if (IsCurrentIntersectedWithRight2)
-        //                {
-        //                    right2.IsBadData = true;
-        //                    mergingImageDatas.Add(right2);
-        //                }
-        //            }
-
-        //            if (mergingImageDatas.Count == 0)
-        //                continue;
-        //            var newImageData = GetNewImageDataFormMergingData(mergingImageDatas);
-        //            ImageDatasMerging.Add(newImageData);
-
-        //        }
-        //        //remove the bad data , the ones that get merged, assign the ImageDatasMerging to row
-        //        //good pratice to dipose bitmap for baddata every time
-        //        DisposeBitmaps(imageDatas.Where(x => x.IsBadData).ToList());
-
-        //        imageDatas.RemoveAll(x => x.IsBadData);
-        //        var imageDatasMerging = FromRetangelsToImageDatas(ImageDatasMerging, cropFromOriginBitmap, HaltCallback, ImagePostProcessingCallback);
-        //        row.ImageDatasMerging = imageDatasMerging;
-        //    }
-        //}
-
-
-
-
-
-        //public List<ImageData> FromRetangelsToImageDatas(List<ImageDataMerging> newMergingImageDatas, bool cropFromOriginBitmap, Func<int, bool> HaltCallback = null, Func<Bitmap, Bitmap> ImagePostProcessingCallback = null)
-        //{
-        //    var ImageDatas = new List<ImageData>();
-        //    try
-        //    {
-        //        int count = 0;
-        //        foreach (var newMergingImageData in newMergingImageDatas)
-        //        {
-        //            //Bitmap bmp = null;
-        //            //if (cropFromOriginBitmap)
-        //            //{
-        //            //    bmp = frame.CropFromImageEMGUCVGray(newMergingImageData.MergingRectangle);
-        //            //}
-        //            //else
-        //            //    bmp = binarizedFrame.CropFromImageEMGUCVGray(newMergingImageData.MergingRectangle);
-        //            //bmp = ImagePostProcessingCallback != null ? ImagePostProcessingCallback(bmp) : bmp;
-
-        //            Bitmap bmp = CropAndGetBmp(newMergingImageData.MergingRectangle, cropFromOriginBitmap, HaltCallback, ImagePostProcessingCallback);
-        //            var imageData = new ImageData { BoundingRectangle = newMergingImageData.MergingRectangle, bitmap = bmp };
-        //            ImageDatas.Add(imageData);
-        //            if (HaltCallback != null && HaltCallback(count++) == true)
-        //                break;
-        //        }
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        Logger.Error("Reanalyze of merging ImageDatas Fails", exception);
-        //        throw exception;
-
-        //    }
-        //    return ImageDatas;
-        //}
-
-
-        //public void FromRetangelsToImageDatas1(List<ImageData> ImageDatas, bool cropFromOriginBitmap, Func<int, bool> HaltCallback = null, Func<Bitmap, Bitmap> ImagePostProcessingCallback = null)
-        //{
-        //    try
-        //    {
-        //        int count = 0;
-        //        foreach (var imageData in ImageDatas)
-        //        {
-        //            imageData.bitmap = CropAndGetBmp(imageData.RectangleFinal, cropFromOriginBitmap, HaltCallback, ImagePostProcessingCallback);
-        //            if (HaltCallback != null && HaltCallback(count++) == true)
-        //                break;
-        //        }
-        //    }catch(Exception exception) { 
-
-        //           Logger.Error("Fail to crop images by Rectangels", exception);
-        //           throw exception;
-        //       }
-
-        //}
-
-
-        //public Bitmap CropAndGetBmp(Rectangle rect, bool cropFromOriginBitmap, Func<int, bool> HaltCallback = null, Func<Bitmap, Bitmap> ImagePostProcessingCallback = null)
-        //{
-        //    Bitmap bmp = null;
-        //    if (cropFromOriginBitmap)
-        //    {
-        //        bmp = frame.CropFromImageEMGUCVGray(rect);
-        //    }
-        //    else
-        //        bmp = grayFrame.CropFromImageEMGUCVGray(rect);
-        //    bmp = ImagePostProcessingCallback != null ? ImagePostProcessingCallback(bmp) : bmp;
-        //    return bmp;
-        //}
 
         /// <summary>
         /// http://www.emgu.com/forum/viewtopic.php?t=118
@@ -385,31 +221,31 @@ namespace Infrastructure.Services
         /// </summary>
         /// <param name="mergingImageDatas"></param>
         /// <returns></returns>
-        public ImageDataMerging GetNewImageDataFormMergingData(List<ImageData> mergingImageDatas)
-        {
-            if (mergingImageDatas == null || mergingImageDatas.Count < 2)
-                throw new ArgumentException("at least 2 contours for merging");
-            //take first ImageData as base
+        //public ImageDataMerging GetNewImageDataFormMergingData(List<ImageData> mergingImageDatas)
+        //{
+        //    if (mergingImageDatas == null || mergingImageDatas.Count < 2)
+        //        throw new ArgumentException("at least 2 contours for merging");
+        //    //take first ImageData as base
 
-            Rectangle newRect = new Rectangle();
-            using (MemStorage stor = new MemStorage())
-            {
-                Contour<System.Drawing.Point> contour = new Contour<Point>(stor);
-                Enumerable.Range(0, mergingImageDatas.Count).ToList().ForEach(index =>
-                {
-                    var imageData = mergingImageDatas[index];
-                    imageData.IsBadData = true;
-                    foreach (var p in imageData.Contour)
-                    {
-                        contour.Push(p);
-                    }
-                });
-                Seq<Point> convexHull = contour.GetConvexHull(Emgu.CV.CvEnum.ORIENTATION.CV_CLOCKWISE);
-                newRect = convexHull.GetMinAreaRect().MinAreaRect();
-            }
+        //    Rectangle newRect = new Rectangle();
+        //    using (MemStorage stor = new MemStorage())
+        //    {
+        //        Contour<System.Drawing.Point> contour = new Contour<Point>(stor);
+        //        Enumerable.Range(0, mergingImageDatas.Count).ToList().ForEach(index =>
+        //        {
+        //            var imageData = mergingImageDatas[index];
+        //            imageData.IsBadData = true;
+        //            foreach (var p in imageData.Contour)
+        //            {
+        //                contour.Push(p);
+        //            }
+        //        });
+        //        Seq<Point> convexHull = contour.GetConvexHull(Emgu.CV.CvEnum.ORIENTATION.CV_CLOCKWISE);
+        //        newRect = convexHull.GetMinAreaRect().MinAreaRect();
+        //    }
 
-            return new ImageDataMerging(newRect);
-        }
+        //    return new ImageDataMerging(newRect);
+        //}
 
 
         //public List<ImageDatasPerRow> SplitImageDatasIntoRows(List<ImageData> imageDatas, string BigString)
@@ -463,61 +299,61 @@ namespace Infrastructure.Services
         //    return ImageDataRows;
         //}
 
-        protected bool IsRowBreak(ImageData Current, ImageData Next, int index)
-        {
+        //protected bool IsRowBreak(ImageData Current, ImageData Next, int index)
+        //{
 
 
-            var currentUpBound = Current.Contour.BoundingRectangle.Y;
-            var currentBottomBound = currentUpBound + Current.Contour.BoundingRectangle.Height;
+        //    var currentUpBound = Current.Contour.BoundingRectangle.Y;
+        //    var currentBottomBound = currentUpBound + Current.Contour.BoundingRectangle.Height;
 
-            var nextUpBound = Next.Contour.BoundingRectangle.Y;
-            var nextBottomBound = nextUpBound + Next.Contour.BoundingRectangle.Height;
-
-
-            //if next contour Y is not intersected with current contour Y, it is a row break
-
-            var IsRowBreak = false;
-            //if the difference is smaller than 20, let's assume the gap is too small 
-            var diffUpBottom = nextUpBound - currentBottomBound;
-            if (currentUpBound == nextUpBound || diffUpBottom < 20)
-                return IsRowBreak;
-
-            //current contour Y is intersected with next contour Y axis
-            var testCase1 = currentUpBound > nextUpBound && currentUpBound < nextBottomBound;
-            var testCase2 = currentBottomBound > nextUpBound && currentBottomBound < nextBottomBound;
-
-            //next contour Y is intersected with current contour Y axis
-            var testCase3 = nextUpBound > currentUpBound && nextUpBound < currentBottomBound;
-            var testCase4 = nextBottomBound > currentUpBound && nextBottomBound < currentBottomBound;
-            if (!testCase1 && !testCase2 && !testCase3 && !testCase4)
-            {
+        //    var nextUpBound = Next.Contour.BoundingRectangle.Y;
+        //    var nextBottomBound = nextUpBound + Next.Contour.BoundingRectangle.Height;
 
 
-                IsRowBreak = true;
-            }
-            return IsRowBreak;
-        }
+        //    //if next contour Y is not intersected with current contour Y, it is a row break
 
-        protected bool IsIntersectX(ImageData Current, ImageData Next)
-        {
-            bool IsIntersectedX = false;
-            var currentLeftBound = Current.Contour.BoundingRectangle.X;
-            var currentRightBound = currentLeftBound + Current.Contour.BoundingRectangle.Width;
-            var nextLeftBound = Next.Contour.BoundingRectangle.X;
-            var nextRightBound = nextLeftBound + Next.Contour.BoundingRectangle.Width;
+        //    var IsRowBreak = false;
+        //    //if the difference is smaller than 20, let's assume the gap is too small 
+        //    var diffUpBottom = nextUpBound - currentBottomBound;
+        //    if (currentUpBound == nextUpBound || diffUpBottom < 20)
+        //        return IsRowBreak;
 
+        //    //current contour Y is intersected with next contour Y axis
+        //    var testCase1 = currentUpBound > nextUpBound && currentUpBound < nextBottomBound;
+        //    var testCase2 = currentBottomBound > nextUpBound && currentBottomBound < nextBottomBound;
 
-            var test1 = currentLeftBound > nextLeftBound && currentLeftBound < nextRightBound;
-            var test2 = currentRightBound > nextLeftBound && currentLeftBound < nextRightBound;
-            var test3 = nextLeftBound > currentLeftBound && nextLeftBound < currentRightBound;
-            var test4 = nextRightBound > currentLeftBound && nextRightBound < currentRightBound;
-
+        //    //next contour Y is intersected with current contour Y axis
+        //    var testCase3 = nextUpBound > currentUpBound && nextUpBound < currentBottomBound;
+        //    var testCase4 = nextBottomBound > currentUpBound && nextBottomBound < currentBottomBound;
+        //    if (!testCase1 && !testCase2 && !testCase3 && !testCase4)
+        //    {
 
 
-            if (test1 || test2 || test3 || test4)
-                IsIntersectedX = true;
-            return IsIntersectedX;
-        }
+        //        IsRowBreak = true;
+        //    }
+        //    return IsRowBreak;
+        //}
+
+        //protected bool IsIntersectX(ImageData Current, ImageData Next)
+        //{
+        //    bool IsIntersectedX = false;
+        //    var currentLeftBound = Current.Contour.BoundingRectangle.X;
+        //    var currentRightBound = currentLeftBound + Current.Contour.BoundingRectangle.Width;
+        //    var nextLeftBound = Next.Contour.BoundingRectangle.X;
+        //    var nextRightBound = nextLeftBound + Next.Contour.BoundingRectangle.Width;
+
+
+        //    var test1 = currentLeftBound > nextLeftBound && currentLeftBound < nextRightBound;
+        //    var test2 = currentRightBound > nextLeftBound && currentLeftBound < nextRightBound;
+        //    var test3 = nextLeftBound > currentLeftBound && nextLeftBound < currentRightBound;
+        //    var test4 = nextRightBound > currentLeftBound && nextRightBound < currentRightBound;
+
+
+
+        //    if (test1 || test2 || test3 || test4)
+        //        IsIntersectedX = true;
+        //    return IsIntersectedX;
+        //}
 
         #endregion
 
@@ -573,161 +409,146 @@ namespace Infrastructure.Services
 
 
 
+        //public void test(Bitmap inputImg)
+        //{
+        //    using (var frame = new Image<Bgr, byte>(inputImg))
+        //    {
+        //        using (var grayFrame = frame.Convert<Gray, Byte>())
+        //        {
+        //            //contrast
+        //            grayFrame._EqualizeHist();
+
+        //            //
+        //            //CvInvoke.cvAdaptiveThreshold(grayFrame, grayFrame, 255,
+        //            //    Emgu.CV.CvEnum.ADAPTIVE_THRESHOLD_TYPE.CV_ADAPTIVE_THRESH_MEAN_C,
+        //            //    Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY, 3 + 3 % 2 + 1, 1.2d);
+
+        //            ////gaussian noise
+        //            Matrix<byte> matrix = new Matrix<byte>(inputImg.Width, inputImg.Height);
+        //            grayFrame.CopyTo(matrix);
+        //            //CvInvoke. cvConvert(img, matrix);
+        //            //matrix.SetRandNormal(new MCvScalar(128), new MCvScalar(30));
+        //            //CvInvoke.GaussianBlur();
+        //            //grayFrame.SmoothBlur();
+
+        //        }
+        //    }
+        //}
 
 
 
 
 
 
-        public List<Contour<Point>> ExtractContours(Bitmap inputImg)
-        {
-            var contours = new List<Contour<Point>>();
-            using (var frame = new Image<Bgr, byte>(inputImg))
-            {
-                using (var grayFrame = frame.Convert<Gray, Byte>())
-                {
-                    //autocontrast
-                    //grayFrame._EqualizeHist();
-                    ////binarize
-                    //CvInvoke.cvAdaptiveThreshold(grayFrame, grayFrame, 255,
-                    //    Emgu.CV.CvEnum.ADAPTIVE_THRESHOLD_TYPE.CV_ADAPTIVE_THRESH_MEAN_C,
-                    //    Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY, 3 + 3 % 2 + 1, 1.2d);
-
-                    try
-                    {
-
-                        CvInvoke.cvAdaptiveThreshold(grayFrame, grayFrame, 255,
-                            Emgu.CV.CvEnum.ADAPTIVE_THRESHOLD_TYPE.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
-                            Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY, 3 + 3 % 2 + 1, 0.2d);
 
 
-                        grayFrame.Bitmap.Save(@"C:\Users\weihang\Documents\visual studio 2015\Projects\SingleCharacterCollect\SingleCharacterCollectTest\Files\ok.jpg");
-                        //revert
-                        //grayFrame._Not();
-                        //var c = grayFrame.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_NONE,
-                        //    Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST);
+        //public List<Contour<Point>> ExtractContours(Bitmap inputImg)
+        //{
+        //    var contours = new List<Contour<Point>>();
+        //    using (var frame = new Image<Bgr, byte>(inputImg))
+        //    {
+        //        using (var grayFrame = frame.Convert<Gray, Byte>())
+        //        {
+        //            //autocontrast
+        //            //grayFrame._EqualizeHist();
+        //            ////binarize
+        //            //CvInvoke.cvAdaptiveThreshold(grayFrame, grayFrame, 255,
+        //            //    Emgu.CV.CvEnum.ADAPTIVE_THRESHOLD_TYPE.CV_ADAPTIVE_THRESH_MEAN_C,
+        //            //    Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY, 3 + 3 % 2 + 1, 1.2d);
+
+        //            try
+        //            {
+
+        //                CvInvoke.AdaptiveThreshold(grayFrame, grayFrame, 255,
+        //                    Emgu.CV.CvEnum.ADAPTIVE_THRESHOLD_TYPE.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
+        //                    Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY, 3 + 3 % 2 + 1, 0.2d);
 
 
-                        var c = grayFrame.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_NONE,
-                           Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST);
-                        var contourList = c.AsContourList();
-
-                        contours = FilterContours(contourList,
-                                                  grayFrame,
-                                                  filterContoursBySize: true,
-                                                  noiseFilter: true);
-                    }
-                    catch (Exception e)
-                    {
-                        var ttt = e.ToString();
-                    }
-
-                }
-            }
+        //                grayFrame.Bitmap.Save(@"C:\Users\weihang\Documents\visual studio 2015\Projects\SingleCharacterCollect\SingleCharacterCollectTest\Files\ok.jpg");
+        //                //revert
+        //                //grayFrame._Not();
+        //                //var c = grayFrame.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_NONE,
+        //                //    Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST);
 
 
-            return contours;
-        }
+        //                var c = grayFrame.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_NONE,
+        //                   Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST);
+        //                var contourList = c.AsContourList();
+
+        //                contours = FilterContours(contourList,
+        //                                          grayFrame,
+        //                                          filterContoursBySize: true,
+        //                                          noiseFilter: true);
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                var ttt = e.ToString();
+        //            }
+
+        //        }
+        //    }
 
 
-
-
-
-        private List<Contour<Point>> FilterContours(List<Contour<Point>> contours, Image<Gray, byte> frame,
-             bool filterContoursBySize = false, int minContourLength = 20,
-            int minContourArea = 10, double minFormFactor = 0.5, bool noiseFilter = false)
-        {
-            var frameWidth = frame.Width;
-            var frameHeight = frame.Height;
-            int maxArea = frameWidth * frameHeight / 5;
-
-            List<Contour<Point>> result = new List<Contour<Point>>();
-
-            foreach (var c in contours)
-            {
-                if (filterContoursBySize)
-                    if (c.Total < minContourLength ||
-                        c.Area < minContourArea || c.Area > maxArea ||
-                        c.Area / c.Total <= minFormFactor)
-                        continue;
-
-                if (noiseFilter)
-                {
-                    Point p1 = c[0];
-                    Point p2 = c[(c.Total / 2) % c.Total];
-                    if (frame[p1].Intensity <= double.Epsilon && frame[p2].Intensity <= double.Epsilon)
-                        continue;
-                }
-                result.Add(c);
-
-            }
-
-            return result;
-        }
-
-        protected bool IsIntersectX(Contour<Point> Current, Contour<Point> Next)
-        {
-            bool IsIntersectedX = false;
-            var currentLeftBound = Current.BoundingRectangle.X;
-            var currentRightBound = currentLeftBound + Current.BoundingRectangle.Width;
-            var nextLeftBound = Next.BoundingRectangle.X;
-            var nextRightBound = nextLeftBound + Next.BoundingRectangle.Width;
-
-
-            var test1 = currentLeftBound > nextLeftBound && currentLeftBound < nextRightBound;
-            var test2 = currentRightBound > nextLeftBound && currentLeftBound < nextRightBound;
-            var test3 = nextLeftBound > currentLeftBound && nextLeftBound < currentRightBound;
-            var test4 = nextRightBound > currentLeftBound && nextRightBound < currentRightBound;
-
-
-            if (test1 || test2 || test3 || test4)
-                IsIntersectedX = true;
-            return IsIntersectedX;
-        }
+        //    return contours;
+        //}
 
 
 
 
-        public void Test(Bitmap inputImg)
-        {
-            using (var frame = new Image<Bgr, byte>(inputImg))
-            {
-                using (var grayFrame = frame.Convert<Gray, Byte>())
-                {
-                    //autocontrast
-                    grayFrame._EqualizeHist();
-                    grayFrame._GammaCorrect(1.8d);
-                    ////binarize
-                    //CvInvoke.cvAdaptiveThreshold(grayFrame, grayFrame, 255,
-                    //    Emgu.CV.CvEnum.ADAPTIVE_THRESHOLD_TYPE.CV_ADAPTIVE_THRESH_MEAN_C,
-                    //    Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY, 3 + 3 % 2 + 1, 1.2d);
 
-                    try
-                    {
+        //private List<Contour<Point>> FilterContours(List<Contour<Point>> contours, Image<Gray, byte> frame,
+        //     bool filterContoursBySize = false, int minContourLength = 20,
+        //    int minContourArea = 10, double minFormFactor = 0.5, bool noiseFilter = false)
+        //{
+        //    var frameWidth = frame.Width;
+        //    var frameHeight = frame.Height;
+        //    int maxArea = frameWidth * frameHeight / 5;
 
-                        CvInvoke.cvAdaptiveThreshold(grayFrame, grayFrame, 255,
-                            Emgu.CV.CvEnum.ADAPTIVE_THRESHOLD_TYPE.CV_ADAPTIVE_THRESH_GAUSSIAN_C,
-                            Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY, 3 + 3 % 2 + 1, 0.2d);
+        //    List<Contour<Point>> result = new List<Contour<Point>>();
+
+        //    foreach (var c in contours)
+        //    {
+        //        if (filterContoursBySize)
+        //            if (c.Total < minContourLength ||
+        //                c.Area < minContourArea || c.Area > maxArea ||
+        //                c.Area / c.Total <= minFormFactor)
+        //                continue;
+
+        //        if (noiseFilter)
+        //        {
+        //            Point p1 = c[0];
+        //            Point p2 = c[(c.Total / 2) % c.Total];
+        //            if (frame[p1].Intensity <= double.Epsilon && frame[p2].Intensity <= double.Epsilon)
+        //                continue;
+        //        }
+        //        result.Add(c);
+
+        //    }
+
+        //    return result;
+        //}
+
+        //protected bool IsIntersectX(Contour<Point> Current, Contour<Point> Next)
+        //{
+        //    bool IsIntersectedX = false;
+        //    var currentLeftBound = Current.BoundingRectangle.X;
+        //    var currentRightBound = currentLeftBound + Current.BoundingRectangle.Width;
+        //    var nextLeftBound = Next.BoundingRectangle.X;
+        //    var nextRightBound = nextLeftBound + Next.BoundingRectangle.Width;
 
 
-                        grayFrame.Bitmap.Save(@"D:\Test\ok1.jpg");
-                        //revert
-                        //grayFrame._Not();
-                        //var c = grayFrame.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_NONE,
-                        //    Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST);
+        //    var test1 = currentLeftBound > nextLeftBound && currentLeftBound < nextRightBound;
+        //    var test2 = currentRightBound > nextLeftBound && currentLeftBound < nextRightBound;
+        //    var test3 = nextLeftBound > currentLeftBound && nextLeftBound < currentRightBound;
+        //    var test4 = nextRightBound > currentLeftBound && nextRightBound < currentRightBound;
 
 
-                    }
-                    catch (Exception e)
-                    {
-                        var ttt = e.ToString();
-                    }
+        //    if (test1 || test2 || test3 || test4)
+        //        IsIntersectedX = true;
+        //    return IsIntersectedX;
+        //}
 
-                }
-            }
-
-
-        }
+        
 
 
 

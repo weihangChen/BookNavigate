@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace Infrastructure.SingleImageProcessing
 {
-    public class NormalizeDecorator : IImageDecorator
+    public class NormalizeDecorator : ImgDecorator
     {
 
         CropStrategy CropStrategy;

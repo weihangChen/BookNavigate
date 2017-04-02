@@ -8,24 +8,11 @@ namespace Infrastructure.Models
     public class ImageData
     {
         public Bitmap bitmap { get; set; }
-        public Contour<Point> Contour { get; set; }
         public Rectangle BoundingRectangle { get; set; }
         public DirectoryInfo HardDiskPath { get; set; }
         public Rectangle EdgeRetangle { get; set; }
 
-        /// <summary>
-        /// use this method to get rectangle, the ones in contours come from original imagedatas, while the boudingrectangle comes from merging imagedata
-        /// </summary>
-        /// <returns></returns>
-        public Rectangle RectangleFinal
-        {
-            get
-            {
-                if (BoundingRectangle == null || (BoundingRectangle.X == 0 && BoundingRectangle.Y == 0 && BoundingRectangle.Height == 0 && BoundingRectangle.Width == 0))
-                    return Contour.BoundingRectangle;
-                return BoundingRectangle;
-            }
-        }
+   
 
         public double[] featureVector { get; set; }
         

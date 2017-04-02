@@ -5,7 +5,7 @@ namespace Infrastructure.SingleImageProcessing
 {
 
 
-    public class ResizeDecorator : IImageDecorator
+    public class ResizeDecorator : ImgDecorator
     {
         int resizeWidth;
         int resizeHeight;
