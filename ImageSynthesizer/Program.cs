@@ -33,14 +33,15 @@ namespace ImageSynthesizer
         //    return filter.Process(img);
         //};
 
-        //odd numbers from 5 - 31 for sigma value
-        static List<int> oddSigma = Enumerable.Range(3, 7).Where(x => x % 2 == 1).ToList();
-        //odd numbers from 5 - 31 for kernal dimension
-        static List<int> oddKernalSize = Enumerable.Range(3, 7).Where(x => x % 2 == 1).ToList();
+        //sigma
+        static List<int> oddSigma = Enumerable.Range(1, 5).Where(x => x % 2 == 1).ToList();
+        //kernal dimension
+        static List<int> oddKernalSize = Enumerable.Range(1, 5).Where(x => x % 2 == 1).ToList();
         //random int calculator
         static Random cal = new Random();
         static string FontDataDirDest = ConfigurationManager.AppSettings["FontDataDirDest"];
         static string FontDataDir = ConfigurationManager.AppSettings["FontDataDir"];
+        static int synthesizeCount = 5;
 
         /// <summary>
         /// for single chars being redered in 2000 different fonts, 
@@ -52,10 +53,9 @@ namespace ImageSynthesizer
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-
+            //create 62 way directories
             PreSynthesize();
 
-            //synthesize images, put it into correct folder with char identify as folder name
 
             foreach (var folder in Directory.GetDirectories(FontDataDir))
             {
@@ -64,21 +64,27 @@ namespace ImageSynthesizer
 
                 foreach (var file in files)
                 {
-                    var img = Image.FromFile(file) as Bitmap;
-                    var charIdentity = Path.GetFileNameWithoutExtension(file);
-                    var charFolder = Path.Combine(FontDataDirDest, charIdentity);
-
-                    //for every single image, generate 5 synthesized ones
-                    var one2five = Enumerable.Range(1, 5).ToList();
-                    one2five.ForEach(index =>
+                    try
                     {
-                        var tossNum = cal.Next(1, 3);
-                        SynthesizeOneImage(img, tossNum, charFolder);
-                    });
+                        var img = Image.FromFile(file) as Bitmap;
+                        var charIdentity = Path.GetFileNameWithoutExtension(file);
+                        var charFolder = Path.Combine(FontDataDirDest, charIdentity);
+
+                        //for every single image, generate 5 synthesized ones
+                        var one2five = Enumerable.Range(1, synthesizeCount).ToList();
+                        one2five.ForEach(index =>
+                        {
+                            var tossNum = cal.Next(1, 3);
+                            SynthesizeOneImage(img, tossNum, charFolder);
+                        });
+                        PostProcessingOriginalImg(img, charFolder);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                    }
                 }
             }
-
-            PostSynthesize();
         }
 
         public static void PreSynthesize()
@@ -93,10 +99,6 @@ namespace ImageSynthesizer
 
         }
 
-        public static void PostSynthesize()
-        {
-
-        }
 
         public static void SynthesizeOneImage(Bitmap img, int tossNum, string charFolder)
         {
@@ -134,6 +136,14 @@ namespace ImageSynthesizer
 
         }
 
+        public static void PostProcessingOriginalImg(Bitmap img, string charFolder)
+        {
+            if (img == null)
+                return;
+
+            var path = Path.Combine(charFolder, IDGenerator.GetBase36(5) + ".jpg");
+            img.Save(path);
+        }
 
         public static void PostProcessingSynthesizedImg(Bitmap img, string charFolder)
         {
