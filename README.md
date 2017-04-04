@@ -28,7 +28,7 @@ extract word images from the images extracted from **BookDownloader** using OCR 
 
 
 ## CharGenerator
-extract single character images from various windows and google fonts. Windows fonts come with operating system, google fonts can be downloaded here, https://github.com/google/fonts
+extract single character images from various windows and google fonts. Windows fonts come with operating system, google fonts can be downloaded here, https://github.com/google/fonts. This project can be used to generate word level images as well with trival changes.
 
 ### Configuration
 
