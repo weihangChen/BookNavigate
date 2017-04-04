@@ -45,6 +45,7 @@ extract single character images from various windows and google fonts. Windows f
 ## ImageSynthesizer
 
 apply Gaussian blurring and auto contrast according to this tutorial for EMGUCV 3.0, to generate sythetic images, the goal is to raise 1900 trainning images for each charater to 5000-6000
+
 http://docs.opencv.org/trunk/dc/dd3/tutorial_gausian_median_blur_bilateral_filter.html
 
 * App.config - appsetting - FontDataDir, location for images containing char/word images generated from "CharGenerator"
