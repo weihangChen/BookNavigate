@@ -1,8 +1,10 @@
-# BookNavigate
+# TextImageGenerator
 This purpose of this project is to gather printed word/char images as training data for machine learning task. 
-* To gather word level data, google open book is scanned, then the original data can be synthetized. These three projects need to be run in proper order: **BookDownloader** - **BookImageProcessor** - **ImageSynthesizer**
+* To gather word level data, google open book is scanned, then the original data can be synthetized. These three projects need to be run in order: **BookDownloader** - **BookImageProcessor** - **ImageSynthesizer**
 
-* To gather single char level data, windows font images containing single char are generated, then the original data can be synthetized. These two projects need to be run in proper order: **CharGenerator** - **ImageSynthesizer**
+* To gather single char level data, windows/google font images containing single char are generated, then the original data can be synthetized. These two projects need to be run in proper order: **CharGenerator** - **ImageSynthesizer**
+
+currently ImageSynthesizer only synthesizes single char level data, but the code base can be modified easiliy to work on word level images.
 
 ## BookDownloader
 Use selenium to navigate through google open books and download each book page as one image and save to harddisk. 
@@ -34,6 +36,15 @@ extract single character images from various windows and google fonts. Windows f
 * App.config - appsetting - GeneratedChars, a complete string containing all chars that should be exported as images
 * App.config - appsetting - GoogleFontDir, after downloaded the complete google font project from git, the "ofl" folder
 * App.config - appsetting - DefaultExportFontSize, the default font size used to generate image
+
+## CharGenerator
+extract single character images from various windows and google fonts. Windows fonts come with operating system, google fonts can be downloaded here, https://github.com/google/fonts
+
+### ImageSynthesizer
+
+currently it
+* App.config - appsetting - FontDataDir, location for images containing char/word images generated from "CharGenerator"
+* App.config - appsetting - FontDataDirDest, location for synthesized images 
 
 
 
