@@ -8,6 +8,10 @@ namespace CharGenerator
 {
     class Program
     {
+        /// <summary>
+        /// in total windows + google font 1951
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
             FontImageExporter exporter = new FontImageExporter();
