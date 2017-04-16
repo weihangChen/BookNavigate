@@ -86,6 +86,8 @@ namespace ImageSynthesizer
 
             var imageDataWriter = new BinaryWriter(new FileStream(imageData, FileMode.CreateNew));
             var labelWriter = new BinaryWriter(new FileStream(imageLabel, FileMode.CreateNew));
+
+            List<int> labels = new List<int>();
             foreach (var folder in Directory.GetDirectories(FontDataDirDest))
             {
                 var tmp = folder.Split('\\');
@@ -95,13 +97,41 @@ namespace ImageSynthesizer
                     var img = Image.FromFile(file) as Bitmap;
                     var bytes = GetBytesForOneImage(img);
                     imageDataWriter.Write(bytes);
-                    labelWriter.Write(charIdentity);
+                    labelWriter.Write(Convert.ToInt32(charIdentity));
+                    labels.Add(Convert.ToInt32(charIdentity));
                 }
             }
             imageDataWriter.Flush();
             imageDataWriter.Close();
             labelWriter.Flush();
             labelWriter.Close();
+
+            //----------------------------
+            //----------------------------
+
+            //verify label binary data length is N * 4
+            var info = new FileInfo(imageLabel);
+            if (info.Length != labels.Count * 4)
+                throw new ArgumentException("total byte count not match");
+            
+            var reader = new BinaryReader(new FileStream(imageLabel, FileMode.Open));
+            int count = 0;
+            while (true)
+            {
+                var bytes = reader.ReadBytes(4);
+                var digit = BitConverter.ToInt32(bytes, 0);
+                if (digit != labels[count])
+                    throw new ArgumentException("saved byte data not match the content");
+
+                count++;
+                if (count == labels.Count)
+                    break;
+            }
+            //verify image binary data length
+            var info1 = new FileInfo(imageData);
+            if (info1.Length != labels.Count * 28 * 28)
+                throw new ArgumentException("total byte count not match");
+
 
         }
 

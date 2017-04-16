@@ -97,6 +97,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ByteDateTest.cs" />
     <Compile Include="FontTest.cs" />
     <Compile Include="OpenCVTest.cs" />
     <Compile Include="SpellCheckTest.cs" />
