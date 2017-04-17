@@ -27,7 +27,7 @@ namespace ImageSynthesizer
             return filter.Process(img);
         };
         static int size = 28;
-
+        //static int total = 15019 * 3;
 
         //sigma
         static List<int> oddSigma = Enumerable.Range(1, 5).Where(x => x % 2 == 1).ToList();
@@ -44,7 +44,7 @@ namespace ImageSynthesizer
         static bool GenerateByteFileContainingAllImages;
         static void Main(string[] args)
         {
-          
+
 
 
             Console.WriteLine("generate a byte file containing all image byte data and identity as MNIST OR do you want to synthesize images? (false/true)");
@@ -85,12 +85,41 @@ namespace ImageSynthesizer
         {
             var imageData = ConfigurationManager.AppSettings["ImageData"];
             var imageLabel = ConfigurationManager.AppSettings["ImageLabel"];
-            
+
 
             var imageDataWriter = new BinaryWriter(new FileStream(imageData, FileMode.CreateNew));
-            imageDataWriter.Write(15019);
+            //test start, to be removed
+            //imageDataWriter.Write(2);
+            //imageDataWriter.Write(2);
+            //imageDataWriter.Write(2);
+            //imageDataWriter.Write(1);
+            //imageDataWriter.Write(2);
+            //imageDataWriter.Write(3);
+            //imageDataWriter.Write(4);
+            //imageDataWriter.Write(5);
+            //imageDataWriter.Write(6);
+            //imageDataWriter.Write(7);
+            //imageDataWriter.Write(8);
+            //imageDataWriter.Flush();
+            //imageDataWriter.Close();
+
+            //test end, to be removed
+            //get the total count
+            var total = 0;
+            foreach (var folder in Directory.GetDirectories(FontDataDirDest))
+            {
+                var tmp = folder.Split('\\');
+                var charIdentity = StringResources.FolderToLetterMapping[tmp[tmp.Length - 1]];
+                total += Directory.GetFiles(folder).Count();
+
+            }
+
+
+            imageDataWriter.Write(total);
             imageDataWriter.Write(size);
             imageDataWriter.Write(size);
+
+
 
 
             var labelWriter = new BinaryWriter(new FileStream(imageLabel, FileMode.CreateNew));
@@ -123,7 +152,7 @@ namespace ImageSynthesizer
             var info = new FileInfo(imageLabel);
             if (info.Length != labels.Count * 4)
                 throw new ArgumentException("total byte count not match");
-            
+
             var reader = new BinaryReader(new FileStream(imageLabel, FileMode.Open));
             int count = 0;
             while (true)
@@ -153,15 +182,28 @@ namespace ImageSynthesizer
             var pixels = new List<int>();
             var imgResized = (Bitmap)img.ResizeImage(size, size);
 
-            for (int x = 0; x < size; x++)
+            //vertical pixel iteration first
+            //for (int x = 0; x < size; x++)
+            //{
+            //    for (int y = 0; y < size; y++)
+            //    {
+            //        Color pixel = imgResized.GetPixel(x, y);
+            //        var pixelValue = Convert.ToInt32((pixel.R + pixel.G + pixel.B) / 3);
+            //        pixels.Add(pixelValue);
+            //    }
+            //}
+
+            //horizontal pixel iteration first
+            for (int y = 0; y < size; y++)
             {
-                for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
                 {
                     Color pixel = imgResized.GetPixel(x, y);
                     var pixelValue = Convert.ToInt32((pixel.R + pixel.G + pixel.B) / 3);
                     pixels.Add(pixelValue);
                 }
             }
+
             return pixels;
         }
 
