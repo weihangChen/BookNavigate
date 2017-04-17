@@ -44,6 +44,9 @@ namespace ImageSynthesizer
         static bool GenerateByteFileContainingAllImages;
         static void Main(string[] args)
         {
+          
+
+
             Console.WriteLine("generate a byte file containing all image byte data and identity as MNIST OR do you want to synthesize images? (false/true)");
             GenerateByteFileContainingAllImages = Convert.ToBoolean(Console.ReadLine());
             if (GenerateByteFileContainingAllImages)
@@ -82,9 +85,14 @@ namespace ImageSynthesizer
         {
             var imageData = ConfigurationManager.AppSettings["ImageData"];
             var imageLabel = ConfigurationManager.AppSettings["ImageLabel"];
-
+            
 
             var imageDataWriter = new BinaryWriter(new FileStream(imageData, FileMode.CreateNew));
+            imageDataWriter.Write(15019);
+            imageDataWriter.Write(size);
+            imageDataWriter.Write(size);
+
+
             var labelWriter = new BinaryWriter(new FileStream(imageLabel, FileMode.CreateNew));
 
             List<int> labels = new List<int>();
@@ -95,9 +103,11 @@ namespace ImageSynthesizer
                 foreach (var file in Directory.GetFiles(folder))
                 {
                     var img = Image.FromFile(file) as Bitmap;
-                    var bytes = GetBytesForOneImage(img);
-                    imageDataWriter.Write(bytes);
+                    var pixels = GetPixelsForOneImage(img);
+                    //write to binarywriter
+                    pixels.ForEach(pixel => imageDataWriter.Write(pixel));
                     labelWriter.Write(Convert.ToInt32(charIdentity));
+                    //add identity as record
                     labels.Add(Convert.ToInt32(charIdentity));
                 }
             }
@@ -129,7 +139,8 @@ namespace ImageSynthesizer
             }
             //verify image binary data length
             var info1 = new FileInfo(imageData);
-            if (info1.Length != labels.Count * 28 * 28)
+            //12 is three digits, 4 bytes for image count, 4 bytes for X, 4 bytes for Y
+            if (info1.Length != labels.Count * 28 * 28 * 4 + 12)
                 throw new ArgumentException("total byte count not match");
 
 
@@ -137,9 +148,9 @@ namespace ImageSynthesizer
 
 
 
-        protected static byte[] GetBytesForOneImage(Bitmap img)
+        protected static List<int> GetPixelsForOneImage(Bitmap img)
         {
-            byte[] bytes = new byte[size * size];
+            var pixels = new List<int>();
             var imgResized = (Bitmap)img.ResizeImage(size, size);
 
             for (int x = 0; x < size; x++)
@@ -148,11 +159,10 @@ namespace ImageSynthesizer
                 {
                     Color pixel = imgResized.GetPixel(x, y);
                     var pixelValue = Convert.ToInt32((pixel.R + pixel.G + pixel.B) / 3);
-                    var pixelValueAsByte = Convert.ToByte(pixelValue);
-                    bytes[size * x + y] = Convert.ToByte(pixelValueAsByte);
+                    pixels.Add(pixelValue);
                 }
             }
-            return bytes;
+            return pixels;
         }
 
 
