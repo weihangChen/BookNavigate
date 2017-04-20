@@ -8,6 +8,8 @@ using System.Linq;
 using Infrastructure.Services;
 using Infrastructure.Models;
 using Infrastructure.Extensions;
+using Emgu.CV;
+using Emgu.CV.Structure;
 
 namespace ImageSynthesizer
 {
@@ -20,6 +22,7 @@ namespace ImageSynthesizer
             var filter = new AutoContrastFilter();
             return filter.Process(img);
         };
+
 
         static Func<Bitmap, Size, double, Bitmap> gaussianBlurFilterFunc = (img, size, sigmax) =>
         {
@@ -42,6 +45,8 @@ namespace ImageSynthesizer
         static int copy = 1;
         static string TobeGeneratedChars;
         static bool GenerateByteFileContainingAllImages;
+        static bool ColorInvert;
+       
         static void Main(string[] args)
         {
 
@@ -51,7 +56,7 @@ namespace ImageSynthesizer
             GenerateByteFileContainingAllImages = Convert.ToBoolean(Console.ReadLine());
             if (GenerateByteFileContainingAllImages)
             {
-                NormalizeAndGenerateByteFile();
+                GenerateByteFile();
             }
             else
             {
@@ -68,7 +73,10 @@ namespace ImageSynthesizer
                 else if (stringSetChoice.Equals("2"))
                     TobeGeneratedChars = StringResources.SixtyTwoChars;
 
+               
 
+                Console.WriteLine("should make background black? (true/false)");
+                ColorInvert = Convert.ToBoolean(Console.ReadLine());
                 CreateDirs();
                 GenerateImages();
             }
@@ -81,10 +89,12 @@ namespace ImageSynthesizer
         /// one file with image data
         /// second file with image label data
         /// </summary>
-        protected static void NormalizeAndGenerateByteFile()
+        protected static void GenerateByteFile()
         {
             var imageData = ConfigurationManager.AppSettings["ImageData"];
             var imageLabel = ConfigurationManager.AppSettings["ImageLabel"];
+            File.Delete(imageData);
+            File.Delete(imageLabel);
 
 
             var imageDataWriter = new BinaryWriter(new FileStream(imageData, FileMode.CreateNew));
@@ -135,7 +145,7 @@ namespace ImageSynthesizer
                     var pixels = GetPixelsForOneImage(img);
                     //write to binarywriter
                     pixels.ForEach(pixel => imageDataWriter.Write(pixel));
-                    labelWriter.Write(Convert.ToInt32(charIdentity));
+                    labelWriter.Write(charIdentity);
                     //add identity as record
                     labels.Add(Convert.ToInt32(charIdentity));
                 }
@@ -150,7 +160,7 @@ namespace ImageSynthesizer
 
             //verify label binary data length is N * 4
             var info = new FileInfo(imageLabel);
-            if (info.Length != labels.Count * 4)
+            if (info.Length != labels.Count)
                 throw new ArgumentException("total byte count not match");
 
             var reader = new BinaryReader(new FileStream(imageLabel, FileMode.Open));
@@ -169,7 +179,7 @@ namespace ImageSynthesizer
             //verify image binary data length
             var info1 = new FileInfo(imageData);
             //12 is three digits, 4 bytes for image count, 4 bytes for X, 4 bytes for Y
-            if (info1.Length != labels.Count * 28 * 28 * 4 + 12)
+            if (info1.Length != labels.Count * size * size  + 12)
                 throw new ArgumentException("total byte count not match");
 
 
@@ -177,10 +187,10 @@ namespace ImageSynthesizer
 
 
 
-        protected static List<int> GetPixelsForOneImage(Bitmap img)
+        protected static List<byte> GetPixelsForOneImage(Bitmap img)
         {
-            var pixels = new List<int>();
-            var imgResized = (Bitmap)img.ResizeImage(size, size);
+            var pixels = new List<byte>();
+            //var imgResized = (Bitmap)img.ResizeImage(size, size);
 
             //vertical pixel iteration first
             //for (int x = 0; x < size; x++)
@@ -198,9 +208,9 @@ namespace ImageSynthesizer
             {
                 for (int x = 0; x < size; x++)
                 {
-                    Color pixel = imgResized.GetPixel(x, y);
+                    Color pixel = img.GetPixel(x, y);
                     var pixelValue = Convert.ToInt32((pixel.R + pixel.G + pixel.B) / 3);
-                    pixels.Add(pixelValue);
+                    pixels.Add((byte)pixelValue);
                 }
             }
 
@@ -239,7 +249,7 @@ namespace ImageSynthesizer
                         }
                         for (int i = 0; i < copy; i++)
                         {
-                            PostProcessingOriginalImg(img, charFolder);
+                            SaveImageToHardDisk(img, charFolder);
                         }
 
                     }
@@ -296,27 +306,35 @@ namespace ImageSynthesizer
             {
                 Console.WriteLine(e.ToString());
             }
-            PostProcessingSynthesizedImg(synthesizedImg, charFolder);
+            SaveImageToHardDisk(synthesizedImg, charFolder);
 
         }
 
-        protected static void PostProcessingOriginalImg(Bitmap img, string charFolder)
+        protected static void SaveImageToHardDisk(Bitmap img, string charFolder)
         {
             if (img == null)
                 return;
-
             var path = Path.Combine(charFolder, IDGenerator.GetBase36(5) + ".jpg");
-            img.Save(path);
+            Bitmap imgTobeSave = img.ResizeImage(size, size);
+            if (ColorInvert)
+            {
+                using (var frame = new Image<Bgr, byte>(imgTobeSave))
+                {
+                    frame._Not();
+                    frame.Bitmap.Save(path);
+                }
+            }
+            else
+            {
+                img.Save(path);
+            }
+
+
+            
+          
         }
 
-        protected static void PostProcessingSynthesizedImg(Bitmap img, string charFolder)
-        {
-            if (img == null)
-                return;
-
-            var path = Path.Combine(charFolder, IDGenerator.GetBase36(5) + ".jpg");
-            img.Save(path);
-        }
+        
 
     }
 

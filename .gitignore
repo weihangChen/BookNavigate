@@ -240,3 +240,6 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/SingleCharacterCollectTest/Data/train-labels-idx1-ubyte
+/SingleCharacterCollectTest/Data/imagedata
+/SingleCharacterCollectTest/Data/train-images-idx3-ubyte

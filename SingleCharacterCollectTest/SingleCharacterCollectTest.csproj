@@ -142,6 +142,9 @@
     <Content Include="x86\opencv_superres2410.dll" />
     <Content Include="x86\opencv_video2410.dll" />
     <Content Include="x86\opencv_videostab2410.dll" />
+    <None Include="Data\imagedata" />
+    <None Include="Data\train-images-idx3-ubyte" />
+    <None Include="Data\train-labels-idx1-ubyte" />
     <None Include="Hunspellx64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

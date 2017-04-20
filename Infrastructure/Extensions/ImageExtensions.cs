@@ -314,5 +314,36 @@ namespace Infrastructure.Extensions
             }
             return result;
         }
+
+
+        public static List<byte> GetPixelsForOneImage(this Bitmap img, int xmax, int ymax)
+        {
+            var pixels = new List<byte>();
+            //var imgResized = (Bitmap)img.ResizeImage(size, size);
+
+            //vertical pixel iteration first
+            //for (int x = 0; x < size; x++)
+            //{
+            //    for (int y = 0; y < size; y++)
+            //    {
+            //        Color pixel = imgResized.GetPixel(x, y);
+            //        var pixelValue = Convert.ToInt32((pixel.R + pixel.G + pixel.B) / 3);
+            //        pixels.Add(pixelValue);
+            //    }
+            //}
+
+            //horizontal pixel iteration first
+            for (int y = 0; y < ymax; y++)
+            {
+                for (int x = 0; x < xmax; x++)
+                {
+                    Color pixel = img.GetPixel(x, y);
+                    var pixelValue = Convert.ToInt32((pixel.R + pixel.G + pixel.B) / 3);
+                    pixels.Add((byte)pixelValue);
+                }
+            }
+
+            return pixels;
+        }
     }
 }

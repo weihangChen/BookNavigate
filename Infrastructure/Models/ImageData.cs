@@ -1,5 +1,6 @@
 ﻿using Emgu.CV;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
@@ -21,6 +22,8 @@ namespace Infrastructure.Models
 
 
         public byte[][] pixels;
+        public List<byte> colors;
+       
 
         //public int label { get; set; }
         public int orderInCollection { get; set; }
@@ -35,7 +38,7 @@ namespace Infrastructure.Models
         }
         public ImageData()
         {
-
+            colors = new List<byte>();
         }
 
 

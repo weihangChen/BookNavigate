@@ -35,5 +35,10 @@ namespace Infrastructure.Services
 
             return sb.ToString();
         }
+
+        public static string GetGuid()
+        {
+            return Guid.NewGuid().ToString();
+        }
     }
 }
