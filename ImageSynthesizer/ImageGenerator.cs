@@ -14,7 +14,6 @@ namespace ImageSynthesizer
 
     public class ImageGenerator
     {
-        static int copy = 1;
         static Random cal = new Random();
         //sigma
         static List<int> oddSigma = Enumerable.Range(1, 5).Where(x => x % 2 == 1).ToList();
@@ -39,6 +38,7 @@ namespace ImageSynthesizer
                                           string TobeGeneratedChars,
                                           bool shouldSynthesize,
                                           int synthesizeCount,
+                                          int copy,
                                           bool colorInvert,
                                           int size)
         {

@@ -22,9 +22,7 @@ namespace ImageSynthesizer
         static string FontDataDirDest = ConfigurationManager.AppSettings["FontDataDirDest"];
         static string FontDataDir = ConfigurationManager.AppSettings["FontDataDir"];
         static int synthesizeCount = 5;
-        static bool shouldSynthesize;
-        static int copy = 1;
-        static string TobeGeneratedChars;
+        
 
         static void Main(string[] args)
         {
@@ -40,26 +38,29 @@ namespace ImageSynthesizer
             else if (command.Equals("2"))
             {
                 Console.WriteLine("we are going to normalize the data and put them into folder with char name, do you want to spawn 5 synthesized images per image? (false/true)");
-                shouldSynthesize = Convert.ToBoolean(Console.ReadLine());
+                var shouldSynthesize = Convert.ToBoolean(Console.ReadLine());
 
                 Console.WriteLine("generate more copies of original image? type of number, if 1 no copy is saved, if larger than 1 then N-1 more copies will be saved");
-                copy = Convert.ToInt32(Console.ReadLine());
+                var copy = Convert.ToInt32(Console.ReadLine());
 
                 Console.WriteLine("which string set do you want to generate? (1 - digits, 2 - 62 ways chars)");
                 var stringSetChoice = Console.ReadLine();
+
+                string tobeGeneratedChars = "";
                 if (stringSetChoice.Equals("1"))
-                    TobeGeneratedChars = StringResources.Digits;
+                    tobeGeneratedChars = StringResources.Digits;
                 else if (stringSetChoice.Equals("2"))
-                    TobeGeneratedChars = StringResources.SixtyTwoChars;
+                    tobeGeneratedChars = StringResources.SixtyTwoChars;
 
                 Console.WriteLine("should make background black? (true/false)");
                 var colorInvert = Convert.ToBoolean(Console.ReadLine());
-                DirGenerator.CreateDirs(TobeGeneratedChars, FontDataDirDest);
+                DirGenerator.CreateDirs(tobeGeneratedChars, FontDataDirDest);
                 ImageGenerator.GenerateImages(FontDataDir,
                                            FontDataDirDest,
-                                           TobeGeneratedChars,
+                                           tobeGeneratedChars,
                                            shouldSynthesize,
                                            synthesizeCount,
+                                           copy,
                                            colorInvert,
                                            size);
             }
@@ -68,15 +69,6 @@ namespace ImageSynthesizer
 
             }
         }
-
-
-
-
-
-
-
-
-
 
     }
 
