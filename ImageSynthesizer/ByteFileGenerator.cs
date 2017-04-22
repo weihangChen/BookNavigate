@@ -15,8 +15,10 @@ namespace ImageSynthesizer
         /// normalize size of images, put all images and its identity into two byte files as for MNIST
         /// one file with image data
         /// second file with image label data
+        /// 
+        /// shuffle will make sure that the imagedata are organized in random order, so machine learning training don't need to shuffle it 
         /// </summary>
-        public static void GenerateByteFile(string fontDataDirDest, int size)
+        public static void GenerateByteFile(string fontDataDirDest, int size, bool shuffle)
         {
             var imageData = ConfigurationManager.AppSettings["ImageData"];
             var imageLabel = ConfigurationManager.AppSettings["ImageLabel"];
@@ -59,17 +61,23 @@ namespace ImageSynthesizer
             //write data to file
             var labelWriter = new BinaryWriter(new FileStream(imageLabel, FileMode.CreateNew));
             var imageDataWriter = new BinaryWriter(new FileStream(imageData, FileMode.CreateNew));
-            WriteDataToFile(imageDatas, labelWriter, imageDataWriter, total, size);
+            WriteDataToFile(imageDatas, labelWriter, imageDataWriter, total, size, shuffle);
 
             //data integrity check
             var labels = imageDatas.Select(x => Convert.ToInt32(x.Label)).ToList();
             VerifyLabelByteFile(imageLabel, labels);
             VerifyImageDataByteFile(imageData, imageDatas.Count(), size);
-            
+
         }
 
-        public static void WriteDataToFile(List<ImageData> imageDatas, BinaryWriter labelWriter, BinaryWriter imageDataWriter, int total, int size)
+        public static void WriteDataToFile(List<ImageData> imageDatas, BinaryWriter labelWriter, BinaryWriter imageDataWriter, int total, int size, bool shuffle)
         {
+            if (shuffle)
+            {
+                imageDatas.Shuffle();
+            }
+
+
             //label byte file 
             labelWriter.WriteInt32BigEndian(2049);
             labelWriter.WriteInt32BigEndian(total);

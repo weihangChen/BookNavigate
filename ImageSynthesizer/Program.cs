@@ -25,7 +25,9 @@ namespace ImageSynthesizer
             var command = Console.ReadLine();
             if (command.Equals("1"))
             {
-                ByteFileGenerator.GenerateByteFile(_fontDataDirDest, size);
+                Console.WriteLine("shuffle the dataset?");
+                var shuffle = Convert.ToBoolean(Console.ReadLine());
+                ByteFileGenerator.GenerateByteFile(_fontDataDirDest, size, shuffle);
             }
             else if (command.Equals("2"))
             {
@@ -70,10 +72,10 @@ namespace ImageSynthesizer
 
                 }
 
-                MNISTUnpack.UnpackByteFileToImages("..\\..\\Data\\train-labels-idx1-ubyte", 
-                                                   "..\\..\\Data\\train-images-idx3-ubyte", 
-                                                   _mnistDir, 
-                                                   resaveByteFile, 
+                MNISTUnpack.UnpackByteFileToImages("..\\..\\Data\\train-labels-idx1-ubyte",
+                                                   "..\\..\\Data\\train-images-idx3-ubyte",
+                                                   _mnistDir,
+                                                   resaveByteFile,
                                                    saveImages,
                                                    orderbylabel);
 
