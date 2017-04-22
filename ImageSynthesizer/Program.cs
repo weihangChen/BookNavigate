@@ -1,15 +1,7 @@
-﻿using Infrastructure.SingleImageProcessing;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Configuration;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using Infrastructure.Services;
 using Infrastructure.Models;
-using Infrastructure.Extensions;
-using Emgu.CV;
-using Emgu.CV.Structure;
+
 
 namespace ImageSynthesizer
 {
@@ -56,18 +48,35 @@ namespace ImageSynthesizer
                 var colorInvert = Convert.ToBoolean(Console.ReadLine());
                 DirGenerator.CreateDirs(tobeGeneratedChars, _fontDataDirDest);
                 ImageGenerator.GenerateImages(_fontDataDir,
-                                           _fontDataDirDest,
-                                           tobeGeneratedChars,
-                                           shouldSynthesize,
-                                           synthesizeCount,
-                                           copy,
-                                           colorInvert,
-                                           size);
+                                              _fontDataDirDest,
+                                              tobeGeneratedChars,
+                                              shouldSynthesize,
+                                              synthesizeCount,
+                                              copy,
+                                              colorInvert,
+                                              size);
             }
             else if (command.Equals("3"))
             {
+                Console.WriteLine("read all the bytes then write it as new byte files?");
+                bool resaveByteFile = Convert.ToBoolean(Console.ReadLine());
+                Console.WriteLine("save images to hard disk?");
+                bool saveImages = Convert.ToBoolean(Console.ReadLine());
+                bool orderbylabel = false;
+                if (resaveByteFile)
+                {
+                    Console.WriteLine("order by label?");
+                    orderbylabel = Convert.ToBoolean(Console.ReadLine());
 
-                MNISTUnpack.UnpackByteFileToImages("..\\..\\Data\\train-labels-idx1-ubyte", "..\\..\\Data\\train-images-idx3-ubyte", _mnistDir);
+                }
+
+                MNISTUnpack.UnpackByteFileToImages("..\\..\\Data\\train-labels-idx1-ubyte", 
+                                                   "..\\..\\Data\\train-images-idx3-ubyte", 
+                                                   _mnistDir, 
+                                                   resaveByteFile, 
+                                                   saveImages,
+                                                   orderbylabel);
+
             }
         }
 

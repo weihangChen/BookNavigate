@@ -24,8 +24,8 @@ namespace ImageSynthesizer
             File.Delete(imageLabel);
 
 
-            var imageDataWriter = new BinaryWriter(new FileStream(imageData, FileMode.CreateNew));
-            var labelWriter = new BinaryWriter(new FileStream(imageLabel, FileMode.CreateNew));
+
+
             //get the total count
             var total = 0;
             foreach (var folder in Directory.GetDirectories(fontDataDirDest))
@@ -36,17 +36,13 @@ namespace ImageSynthesizer
 
             }
 
-            labelWriter.Write(total);
-            imageDataWriter.Write(total);
-            imageDataWriter.Write(size);
-            imageDataWriter.Write(size);
 
 
 
 
 
+            var imageDatas = new List<ImageData>();
 
-            List<int> labels = new List<int>();
             foreach (var folder in Directory.GetDirectories(fontDataDirDest))
             {
                 var tmp = folder.Split('\\');
@@ -55,27 +51,48 @@ namespace ImageSynthesizer
                 foreach (var file in Directory.GetFiles(folder))
                 {
                     var img = Image.FromFile(file) as Bitmap;
-                    var pixels = img.GetPixelsForOneImage(size, size);
-                    //one pixel's color one byte writes to data writer
-                    pixels.ForEach(pixel => imageDataWriter.Write(pixel));
-                    //one integer as one byte writes to label writer
-                    labelWriter.Write((byte)(Convert.ToInt32(charIdentity)));
-                    //add identity as record
-                    labels.Add(Convert.ToInt32(charIdentity));
+                    imageDatas.Add(new ImageData { bitmap = img, Label = charIdentity });
+
+
                 }
             }
-            imageDataWriter.Flush();
-            imageDataWriter.Close();
+            //write data to file
+            var labelWriter = new BinaryWriter(new FileStream(imageLabel, FileMode.CreateNew));
+            var imageDataWriter = new BinaryWriter(new FileStream(imageData, FileMode.CreateNew));
+            WriteDataToFile(imageDatas, labelWriter, imageDataWriter, total, size);
+
+            //data integrity check
+            var labels = imageDatas.Select(x => Convert.ToInt32(x.Label)).ToList();
+            VerifyLabelByteFile(imageLabel, labels);
+            VerifyImageDataByteFile(imageData, imageDatas.Count(), size);
+            
+        }
+
+        public static void WriteDataToFile(List<ImageData> imageDatas, BinaryWriter labelWriter, BinaryWriter imageDataWriter, int total, int size)
+        {
+            //label byte file 
+            labelWriter.WriteInt32BigEndian(2049);
+            labelWriter.WriteInt32BigEndian(total);
+            foreach (var data in imageDatas)
+            {
+                var label = Convert.ToInt32(data.Label);
+                labelWriter.Write((byte)label);
+            }
             labelWriter.Flush();
             labelWriter.Close();
 
-
-            //data integrity check
-            VerifyLabelByteFile(imageLabel, labels);
-            VerifyImageDataByteFile(imageData, labels, size);
-
-
-
+            //image byte file
+            imageDataWriter.WriteInt32BigEndian(2051);
+            imageDataWriter.WriteInt32BigEndian(total);
+            imageDataWriter.WriteInt32BigEndian(size);
+            imageDataWriter.WriteInt32BigEndian(size);
+            foreach (var data in imageDatas)
+            {
+                var bytes = data.bitmap.GetPixelsForOneImage(28, 28).ToArray();
+                imageDataWriter.Write(bytes);
+            }
+            imageDataWriter.Flush();
+            imageDataWriter.Close();
         }
 
 
@@ -101,11 +118,11 @@ namespace ImageSynthesizer
                     break;
             }
         }
-        private static void VerifyImageDataByteFile(string imageData, List<int> labels, int size)
+        private static void VerifyImageDataByteFile(string imageData, int count, int size)
         {
             var info1 = new FileInfo(imageData);
             //12 is three digits, 4 bytes for image count, 4 bytes for X, 4 bytes for Y
-            if (info1.Length != labels.Count * size * size + 12)
+            if (info1.Length != count * size * size + 12)
                 throw new ArgumentException("total byte count not match");
 
 

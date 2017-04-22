@@ -1,5 +1,4 @@
-﻿using Infrastructure.Models;
-using Infrastructure.SingleImageProcessing;
+﻿using Infrastructure.SingleImageProcessing;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

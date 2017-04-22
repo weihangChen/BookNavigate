@@ -16,6 +16,14 @@ namespace Infrastructure.Extensions
             return num;
         }
 
+        public static void WriteInt32BigEndian(this BinaryWriter writer, int value)
+        {
+            var bytes = BitConverter.GetBytes(value);
+            Array.Reverse(bytes);
+            writer.Write(bytes);
+            
+        }
+
         public static ImageData ReadAsImage(this BinaryReader reader, int xmax, int ymax)
         {
             var data = new ImageData();
