@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Infrastructure.Extensions;
 
 namespace ImageSynthesizer
 {
@@ -16,7 +16,7 @@ namespace ImageSynthesizer
         /// one file with image data
         /// second file with image label data
         /// </summary>
-        public static void GenerateByteFile()
+        public static void GenerateByteFile(string fontDataDirDest, int size)
         {
             var imageData = ConfigurationManager.AppSettings["ImageData"];
             var imageLabel = ConfigurationManager.AppSettings["ImageLabel"];
@@ -28,7 +28,7 @@ namespace ImageSynthesizer
             var labelWriter = new BinaryWriter(new FileStream(imageLabel, FileMode.CreateNew));
             //get the total count
             var total = 0;
-            foreach (var folder in Directory.GetDirectories(FontDataDirDest))
+            foreach (var folder in Directory.GetDirectories(fontDataDirDest))
             {
                 var tmp = folder.Split('\\');
                 var charIdentity = StringResources.FolderToLetterMapping[tmp[tmp.Length - 1]];
@@ -47,7 +47,7 @@ namespace ImageSynthesizer
 
 
             List<int> labels = new List<int>();
-            foreach (var folder in Directory.GetDirectories(FontDataDirDest))
+            foreach (var folder in Directory.GetDirectories(fontDataDirDest))
             {
                 var tmp = folder.Split('\\');
                 var charIdentity = StringResources.FolderToLetterMapping[tmp[tmp.Length - 1]];
@@ -69,10 +69,18 @@ namespace ImageSynthesizer
             labelWriter.Flush();
             labelWriter.Close();
 
-            //----------------------------
-            //----------------------------
 
-            //label binary file verify
+            //data integrity check
+            VerifyLabelByteFile(imageLabel, labels);
+            VerifyImageDataByteFile(imageData, labels, size);
+
+
+
+        }
+
+
+        private static void VerifyLabelByteFile(string imageLabel, List<int> labels)
+        {
             var info = new FileInfo(imageLabel);
             if (info.Length != labels.Count + 4)
                 throw new ArgumentException("total byte count not match");
@@ -92,12 +100,9 @@ namespace ImageSynthesizer
                 if (count == labels.Count)
                     break;
             }
-
-
-
-
-            //-----------------------------
-            //verify image binary data length
+        }
+        private static void VerifyImageDataByteFile(string imageData, List<int> labels, int size)
+        {
             var info1 = new FileInfo(imageData);
             //12 is three digits, 4 bytes for image count, 4 bytes for X, 4 bytes for Y
             if (info1.Length != labels.Count * size * size + 12)
@@ -105,6 +110,5 @@ namespace ImageSynthesizer
 
 
         }
-
     }
 }

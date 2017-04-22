@@ -15,6 +15,7 @@ namespace ImageSynthesizer
             //create folders for each char
             tobeGeneratedChars.ToList().ForEach(x =>
             {
+
                 var folderName = StringResources.LetterMapping[x.ToString()];
                 var folder = Path.Combine(fontDataDirDest, folderName);
                 Directory.CreateDirectory(folder);

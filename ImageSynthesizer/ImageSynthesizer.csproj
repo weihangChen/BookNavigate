@@ -76,6 +76,7 @@
     <Compile Include="ByteFileGenerator.cs" />
     <Compile Include="DirGenerator.cs" />
     <Compile Include="ImageGenerator.cs" />
+    <Compile Include="MNISTUnpack.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

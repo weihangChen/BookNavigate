@@ -12,6 +12,7 @@ namespace Infrastructure.Models
         public Rectangle BoundingRectangle { get; set; }
         public DirectoryInfo HardDiskPath { get; set; }
         public Rectangle EdgeRetangle { get; set; }
+        public string Label { get; set; }
 
    
 
