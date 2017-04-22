@@ -20,8 +20,7 @@ namespace Infrastructure.Extensions
         {
             var bytes = BitConverter.GetBytes(value);
             Array.Reverse(bytes);
-            writer.Write(bytes);
-            
+            writer.Write(bytes);   
         }
 
         public static ImageData ReadAsImage(this BinaryReader reader, int xmax, int ymax)
@@ -33,12 +32,10 @@ namespace Infrastructure.Extensions
             {
                 for (int x = 0; x < xmax; ++x)
                 {
-
                     byte b = reader.ReadByte();
                     colors.Add(b);
                     var color = (int)b;
                     bitmap.SetPixel(x, y, Color.FromArgb(color, color, color));
-
                 }
             }
             data.bitmap = bitmap;
