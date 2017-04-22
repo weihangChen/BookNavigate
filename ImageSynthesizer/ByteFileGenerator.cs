@@ -52,10 +52,9 @@ namespace ImageSynthesizer
 
                 foreach (var file in Directory.GetFiles(folder))
                 {
-                    var img = Image.FromFile(file) as Bitmap;
-                    imageDatas.Add(new ImageData { bitmap = img, Label = charIdentity });
-
-
+                    //var img = Image.FromFile(file) as Bitmap;
+                    imageDatas.Add(new ImageData { Path = file, Label = charIdentity });
+                    
                 }
             }
             //write data to file
@@ -96,7 +95,8 @@ namespace ImageSynthesizer
             imageDataWriter.WriteInt32BigEndian(size);
             foreach (var data in imageDatas)
             {
-                var bytes = data.bitmap.GetPixelsForOneImage(28, 28).ToArray();
+                var img = Image.FromFile(data.Path) as Bitmap;
+                var bytes = img.GetPixelsForOneImage(size, size).ToArray();
                 imageDataWriter.Write(bytes);
             }
             imageDataWriter.Flush();

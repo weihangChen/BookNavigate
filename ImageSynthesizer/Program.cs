@@ -60,7 +60,7 @@ namespace ImageSynthesizer
             }
             else if (command.Equals("3"))
             {
-                Console.WriteLine("read all the bytes then write it as new byte files?");
+                Console.WriteLine("read byte data from MNIST files, then output new byte files?");
                 bool resaveByteFile = Convert.ToBoolean(Console.ReadLine());
                 Console.WriteLine("save images to hard disk?");
                 bool saveImages = Convert.ToBoolean(Console.ReadLine());

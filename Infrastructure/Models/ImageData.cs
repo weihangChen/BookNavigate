@@ -13,7 +13,7 @@ namespace Infrastructure.Models
         public DirectoryInfo HardDiskPath { get; set; }
         public Rectangle EdgeRetangle { get; set; }
         public string Label { get; set; }
-
+        public string Path { get; set; }
    
 
         public double[] featureVector { get; set; }
