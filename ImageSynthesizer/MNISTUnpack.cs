@@ -12,16 +12,16 @@ namespace ImageSynthesizer
 {
     public class MNISTUnpack
     {
-        static string _MNISTDir = ConfigurationManager.AppSettings["MNISTDest"];
+        //static string _MNISTDir = ConfigurationManager.AppSettings["MNISTDest"];
 
-        public static void UnpackByteFileToImages()
+        public static void UnpackByteFileToImages(string lablePath, string imagePath, string dest)
         {
             //create 10 directories under the specific root dir
-            DirGenerator.CreateDirs(StringResources.Digits, _MNISTDir);
+            DirGenerator.CreateDirs(StringResources.Digits, dest);
             //create stream and reader for label and image byte file reading
-            var labelStream = new FileStream("../../Data/train-labels-idx1-ubyte", FileMode.Open, FileAccess.Read);
+            var labelStream = new FileStream(lablePath, FileMode.Open, FileAccess.Read);
             var labelReader = new BinaryReader(labelStream);
-            var imageStream = new FileStream("../../Data/train-labels-idx1-ubyte", FileMode.Open, FileAccess.Read);
+            var imageStream = new FileStream(imagePath, FileMode.Open, FileAccess.Read);
             var imageReader = new BinaryReader(imageStream);
             //verify label file
             var labelFileLength = labelStream.Length;
@@ -65,7 +65,7 @@ namespace ImageSynthesizer
 
             foreach (var imageData in imageDatas)
             {
-                var labelDir = Path.Combine(_MNISTDir, imageData.Label);
+                var labelDir = Path.Combine(dest, imageData.Label);
                 var imgPath = $"{labelDir}\\{Guid.NewGuid().ToString()}.jpg";
                 imageData.bitmap.Save(imgPath);
             }

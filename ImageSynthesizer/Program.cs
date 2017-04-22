@@ -18,11 +18,11 @@ namespace ImageSynthesizer
         static int size = 28;
 
         //random int calculator
-        static Random cal = new Random();
-        static string FontDataDirDest = ConfigurationManager.AppSettings["FontDataDirDest"];
-        static string FontDataDir = ConfigurationManager.AppSettings["FontDataDir"];
+        static string _fontDataDirDest = ConfigurationManager.AppSettings["FontDataDirDest"];
+        static string _fontDataDir = ConfigurationManager.AppSettings["FontDataDir"];
+        static string _mnistDir = ConfigurationManager.AppSettings["MNISTDest"];
         static int synthesizeCount = 5;
-        
+
 
         static void Main(string[] args)
         {
@@ -33,7 +33,7 @@ namespace ImageSynthesizer
             var command = Console.ReadLine();
             if (command.Equals("1"))
             {
-                ByteFileGenerator.GenerateByteFile();
+                ByteFileGenerator.GenerateByteFile(_fontDataDirDest, size);
             }
             else if (command.Equals("2"))
             {
@@ -54,9 +54,9 @@ namespace ImageSynthesizer
 
                 Console.WriteLine("should make background black? (true/false)");
                 var colorInvert = Convert.ToBoolean(Console.ReadLine());
-                DirGenerator.CreateDirs(tobeGeneratedChars, FontDataDirDest);
-                ImageGenerator.GenerateImages(FontDataDir,
-                                           FontDataDirDest,
+                DirGenerator.CreateDirs(tobeGeneratedChars, _fontDataDirDest);
+                ImageGenerator.GenerateImages(_fontDataDir,
+                                           _fontDataDirDest,
                                            tobeGeneratedChars,
                                            shouldSynthesize,
                                            synthesizeCount,
@@ -67,6 +67,7 @@ namespace ImageSynthesizer
             else if (command.Equals("3"))
             {
 
+                MNISTUnpack.UnpackByteFileToImages("..\\..\\Data\\train-labels-idx1-ubyte", "..\\..\\Data\\train-images-idx3-ubyte", _mnistDir);
             }
         }
 
