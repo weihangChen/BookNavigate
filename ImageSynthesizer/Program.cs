@@ -18,7 +18,7 @@ namespace ImageSynthesizer
 
         static void Main(string[] args)
         {
-            Console.WriteLine("generate a byte file containing all image byte data - 1");
+            Console.WriteLine("generate a byte file containing all image byte data by pointing to an image source - 1");
             Console.WriteLine("synthesize images and make copies of original ones - 2");
             Console.WriteLine("unpack mnist byte files into images - 3");
 

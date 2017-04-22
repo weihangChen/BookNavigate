@@ -107,11 +107,15 @@ namespace ImageSynthesizer
         private static void VerifyLabelByteFile(string imageLabel, List<int> labels)
         {
             var info = new FileInfo(imageLabel);
-            if (info.Length != labels.Count + 4)
+            //4 bytes for magic number, 4 bytes as label count
+            if (info.Length != labels.Count + 8)
                 throw new ArgumentException("total byte count not match");
 
             var reader = new BinaryReader(new FileStream(imageLabel, FileMode.Open));
-            if (labels.Count != reader.ReadInt32())
+
+            var magic = reader.ReadInt32BigEndian();
+            var lcount = reader.ReadInt32BigEndian();
+            if (labels.Count != lcount)
                 throw new Exception("total incorrect");
             int count = 0;
             while (true)
@@ -129,8 +133,8 @@ namespace ImageSynthesizer
         private static void VerifyImageDataByteFile(string imageData, int count, int size)
         {
             var info1 = new FileInfo(imageData);
-            //12 is three digits, 4 bytes for image count, 4 bytes for X, 4 bytes for Y
-            if (info1.Length != count * size * size + 12)
+            //16 bytes, 4 bytes for magic number, 4 bytes for image count, 4 bytes for X, 4 bytes for Y
+            if (info1.Length != count * size * size + 16)
                 throw new ArgumentException("total byte count not match");
 
 
