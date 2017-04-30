@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using Infrastructure.Models;
-
+using System.IO;
 
 namespace ImageSynthesizer
 {
@@ -49,6 +49,9 @@ namespace ImageSynthesizer
                 Console.WriteLine("should make background black? (true/false)");
                 var colorInvert = Convert.ToBoolean(Console.ReadLine());
                 DirGenerator.CreateDirs(tobeGeneratedChars, _fontDataDirDest);
+
+                Directory.CreateDirectory(_fontDataDir);
+                Directory.CreateDirectory(_fontDataDirDest);
                 ImageGenerator.GenerateImages(_fontDataDir,
                                               _fontDataDirDest,
                                               tobeGeneratedChars,

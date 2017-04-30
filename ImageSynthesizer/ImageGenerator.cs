@@ -140,7 +140,7 @@ namespace ImageSynthesizer
             }
             else
             {
-                img.Save(path);
+                imgTobeSave.Save(path);
             }
         }
 
