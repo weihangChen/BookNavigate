@@ -28,6 +28,7 @@ namespace CharGenerator
                 Directory.CreateDirectory(path);
                 exporter.SaveOneImage(word, word, new WindowsFont("Arial", fontSize), path);
                 
+
             }
             else
             {
