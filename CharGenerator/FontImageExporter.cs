@@ -20,29 +20,24 @@ namespace CharGenerator
         {
             foreach (var fontdata in fontDatas)
             {
-                var imagePath = Path.Combine(dir.ToString(), fontdata.FontName);
-                Directory.CreateDirectory(imagePath);
+                var tmp = Path.Combine(dir.ToString(), fontdata.FontName);
+                Directory.CreateDirectory(tmp);
 
 
                 BigString.ToList().ForEach(letter =>
                 {
                     var txt = letter.ToString();
                     var fileName = StringResources.LetterMapping[txt];
-                    SaveOneImage(txt, fileName, fontdata, imagePath);
-                    
+                    var image = new ImageData { Text = txt };
+                    var drawer = new TextDrawer();
+                    var font = fontdata.GetFont();
+                    using (image.bitmap = drawer.DrawTextOnImage(txt, font, Color.Black, Color.White) as Bitmap)
+                    {
+                        image.bitmap.Save($"{tmp}/{fileName}.jpg");
+                    }
+
                 });
 
-            }
-        }
-
-        public void SaveOneImage(string txt, string fileName, FontData fontdata, string imagePath)
-        {
-            var image = new ImageData { Text = txt };
-            var drawer = new TextDrawer();
-            var font = fontdata.GetFont();
-            using (image.bitmap = drawer.DrawTextOnImage(txt, font, Color.Black, Color.White) as Bitmap)
-            {
-                image.bitmap.Save($"{imagePath}/{fileName}.jpg");
             }
         }
 
