@@ -61,6 +61,7 @@ namespace ImageSynthesizer
                 else if (stringSetChoice.Equals("2"))
                     tobeGeneratedChars = StringResources.SixtyTwoChars;
 
+                //the images feed into ML solution has black background
                 Console.WriteLine("should make background black? (true/false)");
                 var colorInvert = Convert.ToBoolean(Console.ReadLine());
                 DirGenerator.CreateDirs(tobeGeneratedChars, _fontDataDirDest);
