@@ -1,13 +1,17 @@
 ﻿using Infrastructure.Models;
+using Infrastructure.Services;
 using System;
 using System.Configuration;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace CharGenerator
 {
     class Program
     {
+        
         /// <summary>
         /// in total windows + google font 1951
         /// </summary>
@@ -15,24 +19,31 @@ namespace CharGenerator
         static void Main(string[] args)
         {
             FontImageExporter exporter = new FontImageExporter();
-            
+
             Console.WriteLine("export one test image in font 'Arial' (mostly for testing purpose), or export char level images in various fonts?  (1 / 2) ");
             if (Console.ReadLine().Equals("1"))
             {
                 Console.WriteLine("what is the word you want to generate?");
                 var word = Console.ReadLine();
+                //always append empty lines for testing purpose
+                var strbuilder = new StringBuilder();
+                strbuilder.AppendLine();
+                strbuilder.Append(' ', 3).Append(word).Append(' ', 3).Append(".");
+                strbuilder.AppendLine();
+                strbuilder.Append(' ', 6).Append(".");
+
                 //17 size is good size to produce height of 28
                 Console.WriteLine("what is the font size");
                 var fontSize = Convert.ToInt32(Console.ReadLine());
                 var path = ConfigurationManager.AppSettings["ExportWordDir"];
                 Directory.CreateDirectory(path);
-                exporter.SaveOneImage(word, word, new WindowsFont("Arial", fontSize), path);
-                
+                exporter.SaveOneImage(strbuilder.ToString(), Guid.NewGuid().ToString(), new WindowsFont("Arial", fontSize), path);
+
 
             }
             else
             {
-                
+
                 Console.WriteLine("export 14 windows font or 1900 google font. '1' or '2'");
                 var command = Console.ReadLine();
                 int fontSize = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultExportFontSize"]);

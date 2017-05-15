@@ -18,8 +18,11 @@ namespace Infrastructure.Services
             Graphics drawing = Graphics.FromImage(img);
 
             //measure the string to see how big the image needs to be
-
-            SizeF textSize = drawing.MeasureString(text, font);
+            //the only way to remove offset background is to use StringFormat
+            //https://weblogs.asp.net/israelio/DrawString-_2F00_-MeasureString-Offset-Problem-Solved-_2100_
+            StringFormat sFormat = new StringFormat(StringFormat.GenericTypographic);
+            PointF origin = new PointF(0, 0);
+            SizeF textSize = drawing.MeasureString(text, font, origin, sFormat);
 
             //free up the dummy image and old graphics object
             img.Dispose();
@@ -43,7 +46,9 @@ namespace Infrastructure.Services
             //drawing.InterpolationMode = InterpolationMode.HighQualityBicubic;
             //drawing.PixelOffsetMode = PixelOffsetMode.HighQuality;
             //high quality set up - end
-            drawing.DrawString(text, font, textBrush, 0, 0);
+            drawing.DrawString(text, font, textBrush, 0, 0, sFormat);
+
+
 
             drawing.Save();
 
