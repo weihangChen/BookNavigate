@@ -6,24 +6,29 @@ namespace Infrastructure.Services
     public interface ITextDrawer
     {
         Image DrawTextOnImage(String text, Font font, Color textColor, Color backColor);
+        Image DrawTextOnImageNoOffset(String text, Font font, Color textColor, Color backColor);
     }
+
 
 
     public class TextDrawer : ITextDrawer
     {
-        public Image DrawTextOnImage(String text, Font font, Color textColor, Color backColor)
+
+
+
+        private Image DrawText(Color textColor,
+                                     Color backColor,
+                                     Func<Graphics, SizeF> textSizeFunc,
+                                         Action<Graphics, Brush> drawAction)
         {
             //first, create a dummy bitmap just to get a graphics object
             Image img = new Bitmap(1, 1);
             Graphics drawing = Graphics.FromImage(img);
 
-            //measure the string to see how big the image needs to be
-            //the only way to remove offset background is to use StringFormat
-            //https://weblogs.asp.net/israelio/DrawString-_2F00_-MeasureString-Offset-Problem-Solved-_2100_
+
             StringFormat sFormat = new StringFormat(StringFormat.GenericTypographic);
             PointF origin = new PointF(0, 0);
-            SizeF textSize = drawing.MeasureString(text, font, origin, sFormat);
-
+            SizeF textSize = textSizeFunc(drawing);
             //free up the dummy image and old graphics object
             img.Dispose();
             drawing.Dispose();
@@ -46,10 +51,7 @@ namespace Infrastructure.Services
             //drawing.InterpolationMode = InterpolationMode.HighQualityBicubic;
             //drawing.PixelOffsetMode = PixelOffsetMode.HighQuality;
             //high quality set up - end
-            drawing.DrawString(text, font, textBrush, 0, 0, sFormat);
-
-
-
+            drawAction(drawing, textBrush);
             drawing.Save();
 
             textBrush.Dispose();
@@ -59,6 +61,39 @@ namespace Infrastructure.Services
 
         }
 
+        //measure the string to see how big the image needs to be
+        //the only way to remove offset background is to use StringFormat, but doing this will reduce the regonition rate
+        //https://weblogs.asp.net/israelio/DrawString-_2F00_-MeasureString-Offset-Problem-Solved-_2100_
+        //the main reason can be so that the generated image's width is much smaller than the height
+        public Image DrawTextOnImageNoOffset(String text, Font font, Color textColor, Color backColor)
+        {
+            StringFormat sFormat = new StringFormat(StringFormat.GenericTypographic);
+            PointF origin = new PointF(0, 0);
+
+            Func<Graphics, SizeF> textSizeFunc = drawing => { return drawing.MeasureString(text, font, origin, sFormat); };
+            Action<Graphics, Brush> drawAction = (drawing1, textBrush1) => drawing1.DrawString(text, font, textBrush1, 0, 0, sFormat);
+            var img = DrawText(textColor,
+                                      backColor,
+                                      textSizeFunc, drawAction);
+            return img;
+
+
+
+        }
+
+        public Image DrawTextOnImage(String text, Font font, Color textColor, Color backColor)
+        {
+
+            Func<Graphics, SizeF> textSizeFunc = drawing => { return drawing.MeasureString(text, font); };
+            Action<Graphics, Brush> drawAction = (drawing1, textBrush1) => drawing1.DrawString(text, font, textBrush1, 0, 0);
+            var img = DrawText(textColor,
+                                      backColor,
+                                      textSizeFunc, drawAction);
+            return img;
+
+
+
+        }
 
     }
 }

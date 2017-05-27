@@ -46,18 +46,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FontImageExporter.cs" />
-    <Compile Include="FontImagePersistentExporter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\infrastructure\Infrastructure.csproj">
       <Project>{b0d5ae58-2cfa-45e9-b429-2cb4443d770c}</Project>
       <Name>Infrastructure</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="googlefonts_large.txt" />
+    <Content Include="googlefonts_small.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

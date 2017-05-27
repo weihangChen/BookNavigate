@@ -1,8 +1,6 @@
 ﻿using Infrastructure.Models;
-using Infrastructure.Services;
 using System;
 using System.Configuration;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,6 +16,10 @@ namespace CharGenerator
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+            
+
+
+
             FontImageExporter exporter = new FontImageExporter();
 
             Console.WriteLine("export one test image in font 'Arial' (mostly for testing purpose), or export char level images in various fonts?  (1 / 2) ");
@@ -50,10 +52,14 @@ namespace CharGenerator
                 if (command.Equals("2"))
                 {
                     var googleFontDir = ConfigurationManager.AppSettings["GoogleFontDir"];
+                   
                     var googleFontDirs = Directory.GetDirectories(googleFontDir)
                                             .SelectMany(x => Directory.GetFiles(x)
                                             .Where(m => m.Contains(".ttf")))
                                             .ToList();
+
+
+
                     var googleFontDatas = googleFontDirs.Select(x =>
                     {
                         var tmp = x.Split('\\');
@@ -62,7 +68,10 @@ namespace CharGenerator
                         return (FontData)e;
                     }).ToList();
 
-                    exporter.ExportFontData(googleFontDatas);
+                    //google fonts are many, some are too unnormal, manually create a list with all normal font names
+                    var googleFontNameList = Directory.GetDirectories(@"..\..\googlefonts.txt");
+                    var filteredGoogleFontDatas = googleFontDatas.Where(x => googleFontNameList.Contains(x.FontName)).ToList();
+                    exporter.ExportFontData(filteredGoogleFontDatas);
                 }
                 else if (command.Equals("1"))
                 {
@@ -78,6 +87,16 @@ namespace CharGenerator
 
             Console.WriteLine("END");
 
+            //following code not used in the main program, some of the google fonts are bad, manually remove them, keep a list of google fonts that are good
+            //System.IO.StreamWriter file = new System.IO.StreamWriter(@"..\..\googlefonts.txt");
+
+            //var allfonts = Directory.GetDirectories(@"D:\Test\FontData_After_Filter_stag");
+            //allfonts.ToList().ForEach(x => {
+            //    var dir = new DirectoryInfo(x);
+            //    var dirName = dir.Name;
+            //    file.WriteLine(dirName);
+            //});
+            //file.Close();
         }
     }
 }

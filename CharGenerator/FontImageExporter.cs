@@ -41,6 +41,7 @@ namespace CharGenerator
             var drawer = new TextDrawer();
             var font = fontdata.GetFont();
             using (image.bitmap = drawer.DrawTextOnImage(txt, font, Color.Black, Color.White) as Bitmap)
+            //using (image.bitmap = drawer.DrawTextOnImageNoOffset(txt, font, Color.Black, Color.White) as Bitmap)
             {
                 image.bitmap.Save($"{imagePath}/{fileName}.jpg");
             }
