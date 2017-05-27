@@ -11,15 +11,11 @@ namespace CharGenerator
     {
         
         /// <summary>
-        /// in total windows + google font 1951
+        /// 1. generate imgages for windows fonts then google ones
         /// </summary>
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            
-
-
-
             FontImageExporter exporter = new FontImageExporter();
 
             Console.WriteLine("export one test image in font 'Arial' (mostly for testing purpose), or export char level images in various fonts?  (1 / 2) ");
@@ -46,7 +42,7 @@ namespace CharGenerator
             else
             {
 
-                Console.WriteLine("export 14 windows font or 1900 google font. '1' or '2'");
+                Console.WriteLine("export windows font images or google font images. (1 / 2)");
                 var command = Console.ReadLine();
                 int fontSize = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultExportFontSize"]);
                 if (command.Equals("2"))
@@ -69,7 +65,7 @@ namespace CharGenerator
                     }).ToList();
 
                     //google fonts are many, some are too unnormal, manually create a list with all normal font names
-                    var googleFontNameList = Directory.GetDirectories(@"..\..\googlefonts.txt");
+                    string[] googleFontNameList = File.ReadAllLines(@"..\..\fonts_small.txt");
                     var filteredGoogleFontDatas = googleFontDatas.Where(x => googleFontNameList.Contains(x.FontName)).ToList();
                     exporter.ExportFontData(filteredGoogleFontDatas);
                 }
