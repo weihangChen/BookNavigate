@@ -61,8 +61,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="googlefonts_large.txt" />
-    <Content Include="googlefonts_small.txt" />
+    <Content Include="fonts_large.txt" />
+    <Content Include="fonts_small.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
