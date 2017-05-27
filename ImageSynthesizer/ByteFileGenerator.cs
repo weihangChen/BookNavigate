@@ -40,27 +40,49 @@ namespace ImageSynthesizer
 
 
 
+            Dictionary<string, List<ImageData>> alldata = new Dictionary<string, List<ImageData>>();
 
 
-
-            var imageDatas = new List<ImageData>();
-
+            
             foreach (var folder in Directory.GetDirectories(fontDataDirDest))
             {
                 var tmp = folder.Split('\\');
                 var charIdentity = StringResources.FolderToLetterMapping[tmp[tmp.Length - 1]];
+                var imageDatasPerChar = new List<ImageData>();
 
                 foreach (var file in Directory.GetFiles(folder))
                 {
-                    //var img = Image.FromFile(file) as Bitmap;
-                    imageDatas.Add(new ImageData { Path = file, Label = charIdentity });
-                    
+                    imageDatasPerChar.Add(new ImageData { Path = file, Label = charIdentity });
                 }
+                //shuffle each dataset for each char
+                if (shuffle)
+                    imageDatasPerChar.Shuffle();
+                alldata[charIdentity] = imageDatasPerChar;
             }
+
+            //split 50% of all char data as training data and 50% as test data, both test / train collection holds a equal distribution for all chars
+            var testDatas = new List<ImageData>();
+            var trainDatas = new List<ImageData>();
+           
+            foreach (KeyValuePair<string, List<ImageData>> entry in alldata)
+            {
+                var data = entry.Value.OrderBy(x => x.Label).ToList();
+                var count = data.Count;
+                var offset = count / 2;
+                var testD = data.Take(offset).ToList();
+                var trainD = data.Skip(offset).Take(count - offset).ToList();
+                testDatas.AddRange(testD);
+                trainDatas.AddRange(trainD);
+            }
+            //merge test and train dataset
+            var imageDatas = new List<ImageData>();
+            imageDatas.AddRange(testDatas);
+            imageDatas.AddRange(trainDatas);
+
             //write data to file
             var labelWriter = new BinaryWriter(new FileStream(imageLabel, FileMode.CreateNew));
             var imageDataWriter = new BinaryWriter(new FileStream(imageData, FileMode.CreateNew));
-            WriteDataToFile(imageDatas, labelWriter, imageDataWriter, total, size, shuffle);
+            WriteDataToFile(imageDatas, labelWriter, imageDataWriter, total, size);
 
             //data integrity check
             var labels = imageDatas.Select(x => Convert.ToInt32(x.Label)).ToList();
@@ -69,12 +91,12 @@ namespace ImageSynthesizer
 
         }
 
-        public static void WriteDataToFile(List<ImageData> imageDatas, BinaryWriter labelWriter, BinaryWriter imageDataWriter, int total, int size, bool shuffle)
+        public static void WriteDataToFile(List<ImageData> imageDatas, BinaryWriter labelWriter, BinaryWriter imageDataWriter, int total, int size)
         {
-            if (shuffle)
-            {
-                imageDatas.Shuffle();
-            }
+            //if (shuffle)
+            //{
+            //    imageDatas.Shuffle();
+            //}
 
 
             //label byte file 

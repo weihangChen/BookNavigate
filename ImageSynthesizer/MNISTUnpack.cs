@@ -79,7 +79,7 @@ namespace ImageSynthesizer
                     imageDatas = imageDatas.OrderBy(x => Convert.ToInt32(x.Label)).ToList();
                 }
 
-                ByteFileGenerator.WriteDataToFile(imageDatas, labelWriter, imageDataWriter, 60000, 28, true);
+                ByteFileGenerator.WriteDataToFile(imageDatas, labelWriter, imageDataWriter, 60000, 28);
             }
         }
     }
