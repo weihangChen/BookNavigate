@@ -29,6 +29,9 @@ extract word images from the images extracted from **BookDownloader** using OCR 
 
 ## CharGenerator
 extract single character images from various windows and google fonts. Windows fonts come with operating system, google fonts can be downloaded here, https://github.com/google/fonts. This project can be used to generate word level images as well with trival changes.
+some fonts can generate unnormal styled characters, we perform manual control and remove those and generate a file "fonts_large.txt"
+containing a list of normal font names. As some font generates a lot of offset at the top and bottom, we remove those fonts and generate
+another file "fonts_small.txt". When image are generated, it will only generate images for the font names that can be found from "fonts_small.txt"
 
 ### Configuration
 
@@ -37,9 +40,6 @@ extract single character images from various windows and google fonts. Windows f
 * App.config - appsetting - GoogleFontDir, after downloaded the complete google font project from git, the "ofl" folder
 * App.config - appsetting - DefaultExportFontSize, the default font size used to generate image
 
-
-## CharGenerator
-extract single character images from various windows and google fonts. Windows fonts come with operating system, google fonts can be downloaded here, https://github.com/google/fonts
 
 
 ## ImageSynthesizer
