@@ -87,27 +87,29 @@ namespace ImageSynthesizer
             WriteDataToFile(imageDatas, labelWriter, imageDataWriter, total, size);
 
             //data integrity check
-            var labels = imageDatas.Select(x => Convert.ToInt32(x.Label)).ToList();
+            var labels = imageDatas.Select(x => LabelStringToInt(x.Label)).ToList();
             VerifyLabelByteFile(imageLabel, labels);
             VerifyImageDataByteFile(imageData, imageDatas.Count(), size);
 
         }
 
+        private static int LabelStringToInt(string label)
+        {
+            var labelAsInt = Convert.ToInt32(StringResources.LetterToByteMapping[label]);
+            return labelAsInt;
+
+        }
+
         public static void WriteDataToFile(List<ImageData> imageDatas, BinaryWriter labelWriter, BinaryWriter imageDataWriter, int total, int size)
         {
-            //if (shuffle)
-            //{
-            //    imageDatas.Shuffle();
-            //}
-
 
             //label byte file 
             labelWriter.WriteInt32BigEndian(2049);
             labelWriter.WriteInt32BigEndian(total);
             foreach (var data in imageDatas)
             {
-                var label = Convert.ToInt32(data.Label);
-                labelWriter.Write((byte)label);
+                var labelAsInt = LabelStringToInt(data.Label);
+                labelWriter.Write((byte)labelAsInt);
             }
             labelWriter.Flush();
             labelWriter.Close();
