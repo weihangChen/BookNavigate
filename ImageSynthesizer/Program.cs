@@ -39,9 +39,7 @@ namespace ImageSynthesizer
             var command = Console.ReadLine();
             if (command.Equals("1"))
             {
-                Console.WriteLine("shuffle the dataset? (true/false)");
-                var shuffle = Convert.ToBoolean(Console.ReadLine());
-                ByteFileGenerator.GenerateByteFile(_fontDataDirDest, size, shuffle);
+                ByteFileGenerator.GenerateByteFile(_fontDataDirDest, size);
             }
             else if (command.Equals("2"))
             {

@@ -18,7 +18,7 @@ namespace ImageSynthesizer
         /// 
         /// shuffle will make sure that the imagedata are organized in random order, so machine learning training don't need to shuffle it 
         /// </summary>
-        public static void GenerateByteFile(string fontDataDirDest, int size, bool shuffle)
+        public static void GenerateByteFile(string fontDataDirDest, int size)
         {
             var imageData = ConfigurationManager.AppSettings["ImageData"];
             var imageLabel = ConfigurationManager.AppSettings["ImageLabel"];
@@ -55,8 +55,8 @@ namespace ImageSynthesizer
                     imageDatasPerChar.Add(new ImageData { Path = file, Label = charIdentity });
                 }
                 //shuffle each dataset for each char
-                if (shuffle)
-                    imageDatasPerChar.Shuffle();
+                
+                imageDatasPerChar.Shuffle();
                 alldata[charIdentity] = imageDatasPerChar;
             }
 
@@ -76,6 +76,8 @@ namespace ImageSynthesizer
             }
             //merge test and train dataset
             var imageDatas = new List<ImageData>();
+            testDatas.Shuffle();
+            trainDatas.Shuffle();
             imageDatas.AddRange(testDatas);
             imageDatas.AddRange(trainDatas);
 
