@@ -50,18 +50,14 @@ namespace ImageSynthesizer
                 Console.WriteLine("generate more copies of original image? type of number, if 1 no copy is saved, if larger than 1 then N-1 more copies will be saved");
                 var copy = Convert.ToInt32(Console.ReadLine());
 
-                Console.WriteLine("which string set do you want to generate? (1 - digits, 2 - 62 ways chars)");
-                var stringSetChoice = Console.ReadLine();
-
-                string tobeGeneratedChars = "";
-                if (stringSetChoice.Equals("1"))
-                    tobeGeneratedChars = StringResources.Digits;
-                else if (stringSetChoice.Equals("2"))
-                    tobeGeneratedChars = StringResources.SixtyTwoChars;
+                
 
                 //the images feed into ML solution has black background
                 Console.WriteLine("should make background black? (true/false)");
                 var colorInvert = Convert.ToBoolean(Console.ReadLine());
+
+                //create dirs for the chars
+                var tobeGeneratedChars = ConfigurationManager.AppSettings["GeneratedChars"];
                 DirGenerator.CreateDirs(tobeGeneratedChars, _fontDataDirDest);
 
                 Directory.CreateDirectory(_fontDataDir);

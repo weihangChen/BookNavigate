@@ -65,14 +65,14 @@ namespace CharGenerator
                     }).ToList();
 
                     //google fonts are many, some are too unnormal, manually create a list with all normal font names
-                    string[] googleFontNameList = File.ReadAllLines(@"..\..\fonts_large.txt");
+                    string[] googleFontNameList = File.ReadAllLines(@"..\..\fonts_small.txt");
                     var filteredGoogleFontDatas = googleFontDatas.Where(x => googleFontNameList.Contains(x.FontName)).ToList();
                     exporter.ExportFontData(filteredGoogleFontDatas);
                 }
                 else if (command.Equals("1"))
                 {
 
-                    var windowsFont = FontResource.Fonts_All.Select(x =>
+                    var windowsFont = FontResource.Fonts_Small.Select(x =>
                     {
                         var font = new WindowsFont(x, fontSize);
                         return (FontData)font;
