@@ -1,43 +1,95 @@
 ﻿using Infrastructure.Models;
 using System;
 using System.Configuration;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Infrastructure.Extensions;
 
 namespace CharGenerator
 {
     class Program
     {
-        
+
         /// <summary>
         /// 1. generate imgages for windows fonts then google ones
         /// </summary>
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+            //init google fonts from ttf file
+
+            var googleFontDirs = Directory.GetDirectories(ConfigurationManager.AppSettings["GoogleFontDir"])
+                                    .SelectMany(x => Directory.GetFiles(x)
+                                    .Where(m => m.Contains(".ttf")))
+                                    .ToList();
+
+            var googleFonts = googleFontDirs.Select(x =>
+            {
+                var tmp = x.Split('\\');
+                var fontName = tmp[tmp.Length - 1].Replace(".ttf", "").Trim();
+                return new { fontName = fontName, path = x };
+
+            }).ToList();
+
+            //----------
             FontImageExporter exporter = new FontImageExporter();
 
-            Console.WriteLine("export one test image in font 'Arial' (mostly for testing purpose), or export char level images in various fonts?  (1 / 2) ");
+            Console.WriteLine("export one test image (mostly for testing purpose), or export char level images in various fonts?  (1 / 2) ");
             if (Console.ReadLine().Equals("1"))
             {
-                Console.WriteLine("what is the word you want to generate?");
-                var word = Console.ReadLine();
-                //always append empty lines for testing purpose
-                var strbuilder = new StringBuilder();
-                strbuilder.AppendLine();
-                strbuilder.Append(' ', 3).Append(word).Append(' ', 3).Append(".");
-                strbuilder.AppendLine();
-                strbuilder.Append(' ', 6).Append(".");
-
+                //font name
+                Console.WriteLine("which font?");
+                var fontName = Console.ReadLine();
                 //17 size is good size to produce height of 28
                 Console.WriteLine("what is the font size");
                 var fontSize = Convert.ToInt32(Console.ReadLine());
+                //create fontdata, check against windows/google fonts
+                //lets assume that if it is not windows font then it is google font
+                var fontData = default(FontData);
+                if (FontResource.Fonts_Small.Any(x => x.Equals(fontName)))
+                    fontData = new WindowsFont(fontName, fontSize);
+                else
+                {
+                    var tmp = googleFonts.FirstOrDefault(x => x.fontName.Equals(fontName));
+
+                    fontData = new GoogleFont(fontName, fontSize, tmp.path);
+                }
+
+
+                //content
+                Console.WriteLine("what is the word you want to generate?");
+                var word = Console.ReadLine();
+               
+                var strbuilder = new StringBuilder();
+                //where the word consists of multi chars, append some space around it
+                if (word.Length > 1)
+                {
+                    strbuilder.AppendLine();
+                    strbuilder.Append(' ', 3).Append(word).Append(' ', 3).Append(".");
+                    strbuilder.AppendLine();
+                    strbuilder.Append(' ', 6).Append(".");
+                }
+                else
+                {
+                    strbuilder.Append(word);
+                }
                 var path = ConfigurationManager.AppSettings["ExportWordDir"];
                 Directory.CreateDirectory(path);
-                exporter.SaveOneImage(strbuilder.ToString(), Guid.NewGuid().ToString(), new WindowsFont("Arial", fontSize), path);
+                var name = Guid.NewGuid().ToString();
 
-
+                //resize and save new images
+                Console.WriteLine("resize to 28*28?");
+                var resize = Convert.ToBoolean(Console.ReadLine());
+                if (resize)
+                {
+                    exporter.SaveOneImage(strbuilder.ToString(), name, fontData, path, true, 28, 28);
+                }
+                else
+                {
+                    exporter.SaveOneImage(strbuilder.ToString(), name, fontData, path);
+                }
             }
             else
             {
@@ -47,20 +99,9 @@ namespace CharGenerator
                 int fontSize = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultExportFontSize"]);
                 if (command.Equals("2"))
                 {
-                    var googleFontDir = ConfigurationManager.AppSettings["GoogleFontDir"];
-                   
-                    var googleFontDirs = Directory.GetDirectories(googleFontDir)
-                                            .SelectMany(x => Directory.GetFiles(x)
-                                            .Where(m => m.Contains(".ttf")))
-                                            .ToList();
-
-
-
-                    var googleFontDatas = googleFontDirs.Select(x =>
+                    var googleFontDatas = googleFonts.Select(x =>
                     {
-                        var tmp = x.Split('\\');
-                        var fontName = tmp[tmp.Length - 1].Replace(".ttf", "").Trim();
-                        var e = new GoogleFont(fontName: fontName, fontSize: fontSize, fontPath: x);
+                        var e = new GoogleFont(fontName: x.fontName, fontSize: fontSize, fontPath: x.path);
                         return (FontData)e;
                     }).ToList();
 

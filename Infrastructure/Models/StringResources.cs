@@ -151,15 +151,15 @@ namespace Infrastructure.Models
         /// </summary>
         public static Dictionary<string, string> LetterToByteMapping = new Dictionary<string, string>()
         {
-            { "0","0"},
-            { "1","1"},
-            { "2","2"},
-            { "3","3"},
+            //{ "0","0"},
+            //{ "1","1"},
+            //{ "2","2"},
+            //{ "3","3"},
             //lowercase
-            //{ "a","0"},
-            //{ "b","1"},
-            //{ "c","2"},
-            //{ "d","3"},
+            { "a","0"},
+            { "b","1"},
+            { "c","2"},
+            { "d","3"},
             //{ "e","4"},
             //{ "f","5"},
             //{ "g","6"},

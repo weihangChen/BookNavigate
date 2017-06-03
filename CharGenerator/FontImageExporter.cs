@@ -5,6 +5,7 @@ using Infrastructure.Services;
 using Infrastructure.Models;
 using System.Configuration;
 using System.IO;
+using Infrastructure.Extensions;
 
 namespace CharGenerator
 {
@@ -35,20 +36,22 @@ namespace CharGenerator
             }
         }
 
-        public void SaveOneImage(string txt, string fileName, FontData fontdata, string imagePath)
+        public void SaveOneImage(string txt, string fileName, FontData fontdata, string imagePath, bool resize = false, int newwidth =0, int newheight =0)
         {
             var image = new ImageData { Text = txt };
             var drawer = new TextDrawer();
             var font = fontdata.GetFont();
             using (image.bitmap = drawer.DrawTextOnImage(txt, font, Color.Black, Color.White) as Bitmap)
             {
+                if (resize)
+                {
+                    image.bitmap = image.bitmap.ResizeImage(newwidth, newheight);
+                }
                 image.bitmap.Save($"{imagePath}/{fileName}.jpg");
             }
         }
 
-
-
-
+        
 
 
     }
