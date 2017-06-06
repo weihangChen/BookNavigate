@@ -35,7 +35,7 @@ namespace Infrastructure.Extensions
             return File.ReadAllBytes(path);
         }
 
-       
+
 
         public static byte[] ImageToByte(this Image img)
         {
@@ -135,7 +135,8 @@ namespace Infrastructure.Extensions
             return features;
         }
 
-
+        //0 stands for white - R 255
+        //1 stands for black - R 0
         public static int[][] ConvertImageToTwoDimensionArray(this Bitmap bmp)
         {
             int width = bmp.Width;
@@ -147,14 +148,80 @@ namespace Infrastructure.Extensions
                 for (int j = 0; j < height; j++)
                 {
                     var pixel = bmp.GetPixel(i, j);
-                    if (pixel.R != 255)
-                    {
-                        var t = pixel.R;
-                    }
-                    features[i][j] = (pixel.R == 255) ? 0 : 1;
+                    var pixel_value = (pixel.R == 255) ? 0 : 1;
+
+                    features[i][j] = pixel_value;
                 }
             }
             return features;
+        }
+
+        public static Bitmap ConvertTwoDimensionArrayToImage(this int[][] features)
+        {
+
+            int width = features.Length;
+            int height = features[0].Length;
+            var bmp = new Bitmap(width, height);
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    var feature = features[i][j];
+                    if (feature == 1)
+                    {
+                        bmp.SetPixel(i, j, Color.Black);
+                    }
+                    else
+                    {
+                        bmp.SetPixel(i, j, Color.White);
+                    }
+                }
+            }
+            return bmp;
+        }
+
+        public static int[][] PeelOffset(this int[][] features, int offset)
+        {
+            int width = features.Length;
+            int width_new = width - (offset * 2);
+            int height = features[0].Length;
+            int height_new = height - (offset * 2);
+
+            int[][] features_new = new int[width_new][];
+            for (int i = 0; i < width; i++)
+            {
+                //x-axis peel
+                var isPeelArea_Width = false;
+                if (i < offset || i + offset >= width)
+                    isPeelArea_Width = true;
+
+                
+                if (!isPeelArea_Width)
+                    features_new[i - offset] = new int[height_new];
+
+                for (int j = 0; j < height; j++)
+                {
+                    var isPeelArea_Height = false;
+                    //there is no need to calculate since one axix as peel area is enough
+                    if (!isPeelArea_Width)
+                    {
+                        //y-axix peel
+                        if (j < offset || j + offset >=  height)
+                            isPeelArea_Height = true;
+                    }
+                    var feature = features[i][j];
+                    var isPeelArea = (isPeelArea_Width || isPeelArea_Height);
+                    //if the peel area contains dark pixel, should not peel
+                    if (isPeelArea && feature == 1)
+                        throw new Exception("peeled area contains dark pixel, modify offset");
+                    //assign data to the new features if it is not peel area
+                    if (!isPeelArea)
+                    {
+                        features_new[i - offset][j - offset] = feature;
+                    }
+                }
+            }
+            return features_new;
         }
 
         public static Bitmap CropFromBitmap(this Bitmap source, Rectangle rec, GraphicsUnit graphicsUnit = GraphicsUnit.Pixel)

@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Infrastructure.Extensions;
+using System.Collections.Generic;
+using Infrastructure.Services;
 
 namespace CharGenerator
 {
@@ -61,7 +63,7 @@ namespace CharGenerator
                 //content
                 Console.WriteLine("what is the word you want to generate?");
                 var word = Console.ReadLine();
-               
+
                 var strbuilder = new StringBuilder();
                 //where the word consists of multi chars, append some space around it
                 if (word.Length > 1)
@@ -84,7 +86,7 @@ namespace CharGenerator
                 var resize = Convert.ToBoolean(Console.ReadLine());
                 if (resize)
                 {
-                    exporter.SaveOneImage(strbuilder.ToString(), name, fontData, path, true, 28, 28);
+                    exporter.SaveOneImage(strbuilder.ToString(), name, fontData, path, new List<ImageDecorator> { new ResizeDecorator(28, 28) });
                 }
                 else
                 {
@@ -97,6 +99,18 @@ namespace CharGenerator
                 Console.WriteLine("export windows font images or google font images. (1 / 2)");
                 var command = Console.ReadLine();
                 int fontSize = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultExportFontSize"]);
+
+                Console.WriteLine("remove offset? (0 = no remove / or the number of pixel as offset to be removed from top/bottom/left/right)");
+                var size = Convert.ToInt32(Console.ReadLine());
+                var removeOffset = false;
+                var removeOffsetSize = 0;
+                if (size > 0)
+                {
+                    removeOffset = true;
+                    removeOffsetSize = size;
+                }
+
+
                 if (command.Equals("2"))
                 {
                     var googleFontDatas = googleFonts.Select(x =>
@@ -108,7 +122,7 @@ namespace CharGenerator
                     //google fonts are many, some are too unnormal, manually create a list with all normal font names
                     string[] googleFontNameList = File.ReadAllLines(@"..\..\fonts_small.txt");
                     var filteredGoogleFontDatas = googleFontDatas.Where(x => googleFontNameList.Contains(x.FontName)).ToList();
-                    exporter.ExportFontData(filteredGoogleFontDatas);
+                    exporter.ExportFontData(filteredGoogleFontDatas, removeOffset, removeOffsetSize);
                 }
                 else if (command.Equals("1"))
                 {
@@ -118,7 +132,7 @@ namespace CharGenerator
                         var font = new WindowsFont(x, fontSize);
                         return (FontData)font;
                     }).ToList();
-                    exporter.ExportFontData(windowsFont);
+                    exporter.ExportFontData(windowsFont, removeOffset, removeOffsetSize);
                 }
             }
 

@@ -69,18 +69,20 @@ namespace ImageSynthesizer
                 var data = entry.Value.OrderBy(x => x.Label).ToList();
                 var count = data.Count;
                 var offset = count / 2;
-                var testD = data.Take(offset).ToList();
-                var trainD = data.Skip(offset).Take(count - offset).ToList();
-                testDatas.AddRange(testD);
+                var trainD = data.Take(offset).ToList();
                 trainDatas.AddRange(trainD);
+                var testD = data.Skip(offset).Take(count - offset).ToList();
+                testDatas.AddRange(testD);
+                
             }
             //merge test and train dataset
             var imageDatas = new List<ImageData>();
-            testDatas.Shuffle();
             trainDatas.Shuffle();
-            imageDatas.AddRange(testDatas);
+            testDatas.Shuffle();
+          
             imageDatas.AddRange(trainDatas);
-
+            imageDatas.AddRange(testDatas);
+            
             //write data to file
             var labelWriter = new BinaryWriter(new FileStream(imageLabel, FileMode.CreateNew));
             var imageDataWriter = new BinaryWriter(new FileStream(imageData, FileMode.CreateNew));
