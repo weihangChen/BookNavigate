@@ -100,15 +100,21 @@ namespace CharGenerator
                 var command = Console.ReadLine();
                 int fontSize = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultExportFontSize"]);
 
-                Console.WriteLine("remove offset? (0 = no remove / or the number of pixel as offset to be removed from top/bottom/left/right)");
-                var size = Convert.ToInt32(Console.ReadLine());
-                var removeOffset = false;
-                var removeOffsetSize = 0;
-                if (size > 0)
+                var removeOffset = Convert.ToBoolean(Console.ReadLine());
+                var offsetX = 0;
+                var offsetY = 0;
+                if (removeOffset)
                 {
-                    removeOffset = true;
-                    removeOffsetSize = size;
+
+                    //if font 40 is used, remove 4 pixel pixels as offsetis good
+                    Console.WriteLine("number of pixel as offset to be removed from x/Y axis - 'X,Y'");
+                    var offsets = Console.ReadLine();
+                    offsetX = Convert.ToInt32(offsets.Split(',')[0]);
+                    offsetY = Convert.ToInt32(offsets.Split(',')[1]);
+
                 }
+
+
 
 
                 if (command.Equals("2"))
@@ -122,7 +128,7 @@ namespace CharGenerator
                     //google fonts are many, some are too unnormal, manually create a list with all normal font names
                     string[] googleFontNameList = File.ReadAllLines(@"..\..\fonts_small.txt");
                     var filteredGoogleFontDatas = googleFontDatas.Where(x => googleFontNameList.Contains(x.FontName)).ToList();
-                    exporter.ExportFontData(filteredGoogleFontDatas, removeOffset, removeOffsetSize);
+                    exporter.ExportFontData(filteredGoogleFontDatas, removeOffset, offsetX, offsetY);
                 }
                 else if (command.Equals("1"))
                 {
@@ -132,7 +138,7 @@ namespace CharGenerator
                         var font = new WindowsFont(x, fontSize);
                         return (FontData)font;
                     }).ToList();
-                    exporter.ExportFontData(windowsFont, removeOffset, removeOffsetSize);
+                    exporter.ExportFontData(windowsFont, removeOffset, offsetX, offsetY);
                 }
             }
 

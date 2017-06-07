@@ -180,24 +180,37 @@ namespace Infrastructure.Extensions
             return bmp;
         }
 
-        public static int[][] PeelOffset(this int[][] features, int offset)
+        /// <summary>
+        /// peel white pixels as offset from the char image, usually offset at Y-axis are larger
+        /// therefore peel more at Y. by removing these offset we are going to test if it inproves the classification rates in ML pipeline
+        /// 
+        /// note1: better way of doing it can be looking for the perfect offset by measuring all images first 
+        /// note2: som offset-top and offset-bottom are uneven, it is possible to auto adjust that, but really don't know if it is going to help
+        /// 
+        /// 
+        /// </summary>
+        /// <param name="features"></param>
+        /// <param name="offsetX"></param>
+        /// <param name="offsetY"></param>
+        /// <returns></returns>
+        public static int[][] PeelOffset(this int[][] features, int offsetX, int offsetY)
         {
             int width = features.Length;
-            int width_new = width - (offset * 2);
+            int width_new = width - (offsetX * 2);
             int height = features[0].Length;
-            int height_new = height - (offset * 2);
+            int height_new = height - (offsetY * 2);
 
             int[][] features_new = new int[width_new][];
             for (int i = 0; i < width; i++)
             {
                 //x-axis peel
                 var isPeelArea_Width = false;
-                if (i < offset || i + offset >= width)
+                if (i < offsetX || i + offsetX >= width)
                     isPeelArea_Width = true;
 
-                
+
                 if (!isPeelArea_Width)
-                    features_new[i - offset] = new int[height_new];
+                    features_new[i - offsetX] = new int[height_new];
 
                 for (int j = 0; j < height; j++)
                 {
@@ -206,7 +219,7 @@ namespace Infrastructure.Extensions
                     if (!isPeelArea_Width)
                     {
                         //y-axix peel
-                        if (j < offset || j + offset >=  height)
+                        if (j < offsetY || j + offsetY >= height)
                             isPeelArea_Height = true;
                     }
                     var feature = features[i][j];
@@ -217,12 +230,15 @@ namespace Infrastructure.Extensions
                     //assign data to the new features if it is not peel area
                     if (!isPeelArea)
                     {
-                        features_new[i - offset][j - offset] = feature;
+                        features_new[i - offsetX][j - offsetY] = feature;
                     }
                 }
             }
             return features_new;
         }
+
+
+
 
         public static Bitmap CropFromBitmap(this Bitmap source, Rectangle rec, GraphicsUnit graphicsUnit = GraphicsUnit.Pixel)
         {

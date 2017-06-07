@@ -29,16 +29,19 @@ namespace Infrastructure.Services
 
     public class PeelDecorator : ImageDecorator
     {
-        int _peelOffsetSize;
-        public PeelDecorator(int peelOffsetSize)
+        int _offsetX;
+        int _offsetY;
+
+        public PeelDecorator(int offsetX, int offsetY)
         {
-            _peelOffsetSize = peelOffsetSize;
+            _offsetX = offsetX;
+            _offsetY = offsetY;
         }
 
         public override Bitmap DecorateImage(Bitmap img)
         {
             var features = img.ConvertImageToTwoDimensionArray();
-            var features_new = features.PeelOffset(_peelOffsetSize);
+            var features_new = features.PeelOffset(_offsetX, _offsetY);
             var img_new = features_new.ConvertTwoDimensionArrayToImage();
             return img_new;
         }
