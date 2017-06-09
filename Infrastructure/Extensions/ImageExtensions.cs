@@ -148,9 +148,10 @@ namespace Infrastructure.Extensions
                 for (int j = 0; j < height; j++)
                 {
                     var pixel = bmp.GetPixel(i, j);
-                    var pixel_value = (pixel.R == 255) ? 0 : 1;
+                    var pixelValue = Convert.ToInt32((pixel.R + pixel.G + pixel.B) / 3);
+                    //var pixel_value = (pixel.R == 255) ? 0 : 1;
 
-                    features[i][j] = pixel_value;
+                    features[i][j] = pixelValue;
                 }
             }
             return features;
@@ -167,14 +168,16 @@ namespace Infrastructure.Extensions
                 for (int j = 0; j < height; j++)
                 {
                     var feature = features[i][j];
-                    if (feature == 1)
-                    {
-                        bmp.SetPixel(i, j, Color.Black);
-                    }
-                    else
-                    {
-                        bmp.SetPixel(i, j, Color.White);
-                    }
+                    Color color = Color.FromArgb(feature, feature, feature);
+                    bmp.SetPixel(i, j, color);
+                    //if (feature == 1)
+                    //{
+                    //    bmp.SetPixel(i, j, Color.Black);
+                    //}
+                    //else
+                    //{
+                    //    bmp.SetPixel(i, j, Color.White);
+                    //}
                 }
             }
             return bmp;

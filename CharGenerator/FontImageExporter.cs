@@ -6,6 +6,7 @@ using Infrastructure.Models;
 using System.Configuration;
 using System.IO;
 using Infrastructure.Extensions;
+using System;
 
 namespace CharGenerator
 {
@@ -32,10 +33,16 @@ namespace CharGenerator
 
                 BigString.ToList().ForEach(letter =>
                 {
-                    var txt = letter.ToString();
-                    var fileName = StringResources.LetterMapping[txt];
-                    SaveOneImage(txt, fileName, fontdata, imagePath, decorators);
-
+                    try
+                    {
+                        var txt = letter.ToString();
+                        var fileName = StringResources.LetterMapping[txt];
+                        SaveOneImage(txt, fileName, fontdata, imagePath, decorators);
+                    }
+                    catch (Exception e)
+                    {
+                        throw e;
+                    }
                 });
 
             }
@@ -52,12 +59,12 @@ namespace CharGenerator
             {
                 if (imgDecorators != null)
                 {
-                    foreach(var dec in imgDecorators)
+                    foreach (var dec in imgDecorators)
                     {
                         image.bitmap = dec.DecorateImage(image.bitmap);
                     }
                 }
-                    
+
                 //if (resize)
                 //{
                 //    image.bitmap = image.bitmap.ResizeImage(newwidth, newheight);

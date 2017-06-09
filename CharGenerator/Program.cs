@@ -99,7 +99,7 @@ namespace CharGenerator
                 Console.WriteLine("export windows font images or google font images. (1 / 2)");
                 var command = Console.ReadLine();
                 int fontSize = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultExportFontSize"]);
-
+                Console.WriteLine("remove some white pixel as offset? (true/false)");
                 var removeOffset = Convert.ToBoolean(Console.ReadLine());
                 var offsetX = 0;
                 var offsetY = 0;
