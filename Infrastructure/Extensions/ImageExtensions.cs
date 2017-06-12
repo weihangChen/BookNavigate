@@ -12,6 +12,7 @@ using System.Linq;
 
 namespace Infrastructure.Extensions
 {
+
     public static class ImageExtensions
     {
         public static void FromBytesToFile(this byte[] bytes, string path)
@@ -147,11 +148,25 @@ namespace Infrastructure.Extensions
                 features[i] = new int[height];
                 for (int j = 0; j < height; j++)
                 {
-                    var pixel = bmp.GetPixel(i, j);
-                    var pixelValue = Convert.ToInt32((pixel.R + pixel.G + pixel.B) / 3);
-                    //var pixel_value = (pixel.R == 255) ? 0 : 1;
+                    Color pixel = bmp.GetPixel(i, j);
+                    features[i][j] = pixel.ColorToByte();
+                }
+            }
+            return features;
+        }
 
-                    features[i][j] = pixelValue;
+        public static int[][] ConvertImageToTwoDimensionArray1(this Bitmap bmp)
+        {
+            int width = bmp.Width;
+            int height = bmp.Height;
+            int[][] features = new int[height][];
+            for (int i = 0; i < height; i++)
+            {
+                features[i] = new int[width];
+                for (int j = 0; j < width; j++)
+                {
+                    Color pixel = bmp.GetPixel(j, i);
+                    features[i][j] = pixel.ColorToByte();
                 }
             }
             return features;
@@ -196,24 +211,24 @@ namespace Infrastructure.Extensions
         /// <param name="offsetX"></param>
         /// <param name="offsetY"></param>
         /// <returns></returns>
-        public static int[][] PeelOffset(this int[][] features, int offsetX, int offsetY)
+        public static int[][] PeelOffset(this int[][] features, int offsetXLeft, int offsetXRight, int offsetYTop, int offsetYBottom)
         {
             int width = features.Length;
-            int width_new = width - (offsetX * 2);
+            int width_new = width - (offsetXLeft + offsetXRight);
             int height = features[0].Length;
-            int height_new = height - (offsetY * 2);
+            int height_new = height - (offsetYTop + offsetYBottom);
 
             int[][] features_new = new int[width_new][];
             for (int i = 0; i < width; i++)
             {
                 //x-axis peel
                 var isPeelArea_Width = false;
-                if (i < offsetX || i + offsetX >= width)
+                if (i < offsetXLeft || i + offsetXRight >= width)
                     isPeelArea_Width = true;
 
 
                 if (!isPeelArea_Width)
-                    features_new[i - offsetX] = new int[height_new];
+                    features_new[i - offsetXLeft] = new int[height_new];
 
                 for (int j = 0; j < height; j++)
                 {
@@ -222,7 +237,7 @@ namespace Infrastructure.Extensions
                     if (!isPeelArea_Width)
                     {
                         //y-axix peel
-                        if (j < offsetY || j + offsetY >= height)
+                        if (j < offsetYTop || j + offsetYBottom >= height)
                             isPeelArea_Height = true;
                     }
                     var feature = features[i][j];
@@ -233,7 +248,7 @@ namespace Infrastructure.Extensions
                     //assign data to the new features if it is not peel area
                     if (!isPeelArea)
                     {
-                        features_new[i - offsetX][j - offsetY] = feature;
+                        features_new[i - offsetXLeft][j - offsetYTop] = feature;
                     }
                 }
             }
@@ -241,7 +256,108 @@ namespace Infrastructure.Extensions
         }
 
 
+        public static List<int> CalculateOffsets(this Bitmap img)
+        {
+            //variables
+            var xFirstDarkPixelIndex = 0;
+            var xLastDarkPixelIndex = 0;
+            var yFirstDarkPixelIndex = 0;
+            var yLastDarkPixelIndex = 0;
+            var result = new List<int>();
+            var width = img.Width;
+            var height = img.Height;
 
+            //process matrix by column
+            var featuresByColumn = img.ConvertImageToTwoDimensionArray();
+
+            for (int i = 0; i < featuresByColumn.Length; i++)
+            {
+                var columnData = featuresByColumn[i].ToList().Select((pixel, index) => new { pixel, index });
+
+                var columnFirstDarkPixel = columnData.FirstOrDefault(x => x.pixel != (int)MyColor.WHITE);
+                if (columnFirstDarkPixel != null)
+                {
+                    var columnFirstDarkPixelIndex = columnFirstDarkPixel.index;
+                    if (yFirstDarkPixelIndex == 0 || columnFirstDarkPixelIndex < yFirstDarkPixelIndex)
+                        yFirstDarkPixelIndex = columnFirstDarkPixelIndex;
+                }
+
+
+                var columnLastDarkPixel = columnData.LastOrDefault(x => x.pixel != (int)MyColor.WHITE);
+                if (columnLastDarkPixel != null)
+                {
+                    var columnLastDarkPixelIndex = columnLastDarkPixel.index;
+                    if (yLastDarkPixelIndex == 0 || columnLastDarkPixelIndex > yLastDarkPixelIndex)
+                        yLastDarkPixelIndex = columnLastDarkPixelIndex;
+                }
+
+            }
+
+            //process matrix by row
+            var featuresByRow = img.ConvertImageToTwoDimensionArray1();
+            for (int i = 0; i < featuresByRow.Length; i++)
+            {
+                var rowData = featuresByRow[i].ToList().Select((pixel, index) => new { pixel, index });
+
+                var rowFirstDarkPixel = rowData.FirstOrDefault(x => x.pixel != (int)MyColor.WHITE);
+                if (rowFirstDarkPixel != null)
+                {
+                    var rowFirstDarkPixelIndex = rowFirstDarkPixel.index;
+                    if (xFirstDarkPixelIndex == 0 || rowFirstDarkPixelIndex < xFirstDarkPixelIndex)
+                        xFirstDarkPixelIndex = rowFirstDarkPixelIndex;
+                }
+
+                var rowLastDarkPixel = rowData.LastOrDefault(x => x.pixel != (int)MyColor.WHITE);
+                if (rowLastDarkPixel != null)
+                {
+                    var rowLastDarkPixelIndex = rowLastDarkPixel.index;
+                    if (xLastDarkPixelIndex == 0 || rowLastDarkPixelIndex > xLastDarkPixelIndex)
+                        xLastDarkPixelIndex = rowLastDarkPixelIndex;
+                }
+
+            }
+
+
+
+
+            //X
+            var diffX = xFirstDarkPixelIndex - (width - xLastDarkPixelIndex - 1);
+            if (diffX == 0)
+            {
+                result.Add(0);
+                result.Add(0);
+            }
+            else if (diffX > 0)
+            {
+                result.Add(Math.Abs(diffX));
+                result.Add(0);
+            }
+            else if (diffX < 0)
+            {
+                result.Add(0);
+                result.Add(Math.Abs(diffX));
+
+            }
+            //Y
+            var diffY = yFirstDarkPixelIndex - (height - yLastDarkPixelIndex - 1);
+            if (diffY == 0)
+            {
+                result.Add(0);
+                result.Add(0);
+            }
+            else if (diffY > 0)
+            {
+                result.Add(Math.Abs(diffY));
+                result.Add(0);
+            }
+            else if (diffY < 0)
+            {
+                result.Add(0);
+                result.Add(Math.Abs(diffY));
+
+            }
+            return result;
+        }
 
         public static Bitmap CropFromBitmap(this Bitmap source, Rectangle rec, GraphicsUnit graphicsUnit = GraphicsUnit.Pixel)
         {
@@ -300,7 +416,7 @@ namespace Infrastructure.Extensions
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
         }
-        public static Bitmap CropImageToEdge(this Bitmap bmp, string txt = "", string font = "")
+        public static Bitmap CropImageToEdge(this Bitmap bmp, string text = "")
         {
 
             var imageRawData = new Dictionary<int, List<double>>();
@@ -390,15 +506,28 @@ namespace Infrastructure.Extensions
             {
                 for (int j = 0; j < widthOrigin; ++j)
                 {
-                    int pixelColor = 255 - pixels[i][j]; // white background, black digits
+                    //int pixelColor = 255 - pixels[i][j]; // white background, black digits
                     //int pixelColor = dImage.pixels[i][j]; // black background, white digits
-                    Color c = Color.FromArgb(pixelColor, pixelColor, pixelColor); // gray scale
+                    //Color c = Color.FromArgb(pixelColor, pixelColor, pixelColor); // gray scale
                     //Color c = Color.FromArgb(pixelColor, 0, 0); // red scale
-                    SolidBrush sb = new SolidBrush(c);
+                    SolidBrush sb = new SolidBrush(pixels[i][j].ByteToColor());
                     gr.FillRectangle(sb, j * mag, i * mag, mag, mag); // fills bitmap via Graphics object
                 }
             }
             return result;
+        }
+
+        public static Color ByteToColor(this byte b)
+        {
+            // white background, black digits
+            int pixelColor = 255 - b;
+            return Color.FromArgb(pixelColor, pixelColor, pixelColor);
+        }
+
+        public static byte ColorToByte(this Color color)
+        {
+            var pixelValue = Convert.ToInt32((color.R + color.G + color.B) / 3);
+            return (byte)pixelValue;
         }
 
 
@@ -424,8 +553,8 @@ namespace Infrastructure.Extensions
                 for (int x = 0; x < xmax; x++)
                 {
                     Color pixel = img.GetPixel(x, y);
-                    var pixelValue = Convert.ToInt32((pixel.R + pixel.G + pixel.B) / 3);
-                    pixels.Add((byte)pixelValue);
+                    //var pixelValue = Convert.ToInt32((pixel.R + pixel.G + pixel.B) / 3);
+                    pixels.Add(pixel.ColorToByte());
                 }
             }
 

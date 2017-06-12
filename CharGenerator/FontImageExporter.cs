@@ -18,13 +18,8 @@ namespace CharGenerator
         public static string BigString = ConfigurationManager.AppSettings["GeneratedChars"];
 
 
-        public void ExportFontData(List<FontData> fontDatas, bool removeOffset, int offsetX, int offsetY)
+        public void ExportFontData(List<FontData> fontDatas, List<ImageDecorator> decorators)
         {
-            var decorators = new List<ImageDecorator>();
-            if (removeOffset)
-            {
-                decorators.Add(new PeelDecorator(offsetX, offsetY));
-            }
             foreach (var fontdata in fontDatas)
             {
                 var imagePath = Path.Combine(dir.ToString(), fontdata.FontName);

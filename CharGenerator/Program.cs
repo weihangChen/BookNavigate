@@ -99,24 +99,33 @@ namespace CharGenerator
                 Console.WriteLine("export windows font images or google font images. (1 / 2)");
                 var command = Console.ReadLine();
                 int fontSize = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultExportFontSize"]);
+                //auto adjust offset
+                
+
+
+                //X,Y - 3,6 for font 40 is good, remove some offset manually
                 Console.WriteLine("remove some white pixel as offset? (true/false)");
                 var removeOffset = Convert.ToBoolean(Console.ReadLine());
+                var evenOffset = false;
                 var offsetX = 0;
                 var offsetY = 0;
                 if (removeOffset)
                 {
 
-                    //if font 40 is used, remove 4 pixel pixels as offsetis good
                     Console.WriteLine("number of pixel as offset to be removed from x/Y axis - 'X,Y'");
                     var offsets = Console.ReadLine();
                     offsetX = Convert.ToInt32(offsets.Split(',')[0]);
                     offsetY = Convert.ToInt32(offsets.Split(',')[1]);
 
+                    Console.WriteLine("auto adjust offset, so top/bottom - left/right white pixels (offset) becomes even");
+                    evenOffset = Convert.ToBoolean(Console.ReadLine());
+
+
                 }
 
 
 
-
+                var fontDatas = new List<FontData>();
                 if (command.Equals("2"))
                 {
                     var googleFontDatas = googleFonts.Select(x =>
@@ -127,19 +136,35 @@ namespace CharGenerator
 
                     //google fonts are many, some are too unnormal, manually create a list with all normal font names
                     string[] googleFontNameList = File.ReadAllLines(@"..\..\fonts_small.txt");
-                    var filteredGoogleFontDatas = googleFontDatas.Where(x => googleFontNameList.Contains(x.FontName)).ToList();
-                    exporter.ExportFontData(filteredGoogleFontDatas, removeOffset, offsetX, offsetY);
+                    fontDatas = googleFontDatas.Where(x => googleFontNameList.Contains(x.FontName)).ToList();
+                    //exporter.ExportFontData(filteredGoogleFontDatas, removeOffset, offsetX, offsetY);
                 }
                 else if (command.Equals("1"))
                 {
 
-                    var windowsFont = FontResource.Fonts_Small.Select(x =>
+                    fontDatas = FontResource.Fonts_Small.Select(x =>
                     {
                         var font = new WindowsFont(x, fontSize);
                         return (FontData)font;
                     }).ToList();
-                    exporter.ExportFontData(windowsFont, removeOffset, offsetX, offsetY);
+
+                    //exporter.ExportFontData(windowsFont, removeOffset, offsetX, offsetY);
                 }
+
+                var decorators = new List<ImageDecorator>();
+                
+                if (removeOffset)
+                {
+                    if (evenOffset)
+                    {
+                        decorators.Add(new EvenAndPeelDecorator(offsetX, offsetX, offsetY, offsetY));
+                    }
+                    else
+                    {
+                        decorators.Add(new PeelDecorator(offsetX, offsetX, offsetY, offsetY));
+                    }
+                }
+                exporter.ExportFontData(fontDatas, decorators);
             }
 
             Console.WriteLine("END");

@@ -94,6 +94,7 @@
     <Compile Include="Models\GraphicConfig.cs" />
     <Compile Include="Models\ImageData.cs" />
     <Compile Include="Models\ImageDataMerging.cs" />
+    <Compile Include="Models\MyColor.cs" />
     <Compile Include="Models\StringResources.cs" />
     <Compile Include="Models\TrainingDataDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

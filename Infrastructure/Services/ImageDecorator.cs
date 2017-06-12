@@ -29,19 +29,42 @@ namespace Infrastructure.Services
 
     public class PeelDecorator : ImageDecorator
     {
-        int _offsetX;
-        int _offsetY;
+        protected int _offsetXLeft;
+        protected int _offsetXRight;
 
-        public PeelDecorator(int offsetX, int offsetY)
+        protected int _offsetYTop;
+        protected int _offsetYBottom;
+
+        public PeelDecorator(int offsetXLeft, int offsetXRight, int offsetYTop, int offsetYBottom)
         {
-            _offsetX = offsetX;
-            _offsetY = offsetY;
+            _offsetXLeft = offsetXLeft;
+            _offsetXRight = offsetXRight;
+            _offsetYTop = offsetYTop;
+            _offsetYBottom = offsetYBottom;
         }
 
         public override Bitmap DecorateImage(Bitmap img)
         {
             var features = img.ConvertImageToTwoDimensionArray();
-            var features_new = features.PeelOffset(_offsetX, _offsetY);
+            var features_new = features.PeelOffset(_offsetXLeft, _offsetXRight, _offsetYTop, _offsetYBottom);
+            var img_new = features_new.ConvertTwoDimensionArrayToImage();
+            return img_new;
+        }
+
+    }
+
+    public class EvenAndPeelDecorator : PeelDecorator
+    {
+        public EvenAndPeelDecorator(int offsetXLeft, int offsetXRight, int offsetYTop, int offsetYBottom) : 
+            base(offsetXLeft, offsetXRight, offsetYTop, offsetYBottom)
+        {
+        }
+
+        public override Bitmap DecorateImage(Bitmap img)
+        {
+            var features = img.ConvertImageToTwoDimensionArray();
+            var offsets = img.CalculateOffsets();
+            var features_new = features.PeelOffset(_offsetXLeft + offsets[0], _offsetXRight + offsets[1], _offsetYTop + offsets[2], _offsetYBottom + offsets[3]);
             var img_new = features_new.ConvertTwoDimensionArrayToImage();
             return img_new;
         }
