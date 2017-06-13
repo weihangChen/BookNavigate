@@ -99,29 +99,7 @@ namespace CharGenerator
                 Console.WriteLine("export windows font images or google font images. (1 / 2)");
                 var command = Console.ReadLine();
                 int fontSize = Convert.ToInt32(ConfigurationManager.AppSettings["DefaultExportFontSize"]);
-                //auto adjust offset
-                
 
-
-                //X,Y - 3,6 for font 40 is good, remove some offset manually
-                Console.WriteLine("remove some white pixel as offset? (true/false)");
-                var removeOffset = Convert.ToBoolean(Console.ReadLine());
-                var evenOffset = false;
-                var offsetX = 0;
-                var offsetY = 0;
-                if (removeOffset)
-                {
-
-                    Console.WriteLine("number of pixel as offset to be removed from x/Y axis - 'X,Y'");
-                    var offsets = Console.ReadLine();
-                    offsetX = Convert.ToInt32(offsets.Split(',')[0]);
-                    offsetY = Convert.ToInt32(offsets.Split(',')[1]);
-
-                    Console.WriteLine("auto adjust offset, so top/bottom - left/right white pixels (offset) becomes even");
-                    evenOffset = Convert.ToBoolean(Console.ReadLine());
-
-
-                }
 
 
 
@@ -137,7 +115,6 @@ namespace CharGenerator
                     //google fonts are many, some are too unnormal, manually create a list with all normal font names
                     string[] googleFontNameList = File.ReadAllLines(@"..\..\fonts_small.txt");
                     fontDatas = googleFontDatas.Where(x => googleFontNameList.Contains(x.FontName)).ToList();
-                    //exporter.ExportFontData(filteredGoogleFontDatas, removeOffset, offsetX, offsetY);
                 }
                 else if (command.Equals("1"))
                 {
@@ -148,20 +125,52 @@ namespace CharGenerator
                         return (FontData)font;
                     }).ToList();
 
-                    //exporter.ExportFontData(windowsFont, removeOffset, offsetX, offsetY);
+                }
+
+
+
+                //---------------auto adjust offset
+
+
+
+                //X,Y - 3,6 for font 40 is good, remove some offset manually
+                Console.WriteLine("remove white pixel as offsets? (true/false)");
+                var removeOffset = Convert.ToBoolean(Console.ReadLine());
+
+                var offsetRemoveOption = -1;
+                var offsetX = 0;
+                var offsetY = 0;
+                if (removeOffset)
+                {
+                    Console.WriteLine("specify offset removal option - remove offsets (0) / even and remove offsets (1) / even and keep offset remains (2)? (0,1,2)");
+                    offsetRemoveOption = Convert.ToInt32(Console.ReadLine());
+
+
+                    Console.WriteLine("specify offsets - 'X,Y'");
+                    var offsets = Console.ReadLine();
+                    offsetX = Convert.ToInt32(offsets.Split(',')[0]);
+                    offsetY = Convert.ToInt32(offsets.Split(',')[1]);
+
+
+
                 }
 
                 var decorators = new List<ImageDecorator>();
-                
+
                 if (removeOffset)
                 {
-                    if (evenOffset)
+                    if (offsetRemoveOption == 0)
+                    {
+                        decorators.Add(new PeelDecorator(offsetX, offsetX, offsetY, offsetY));
+
+                    }
+                    else if (offsetRemoveOption == 1)
                     {
                         decorators.Add(new EvenAndPeelDecorator(offsetX, offsetX, offsetY, offsetY));
                     }
-                    else
+                    else if (offsetRemoveOption == 2)
                     {
-                        decorators.Add(new PeelDecorator(offsetX, offsetX, offsetY, offsetY));
+                        decorators.Add(new AutoPeelDecorator(offsetX, offsetX, offsetY, offsetY));
                     }
                 }
                 exporter.ExportFontData(fontDatas, decorators);

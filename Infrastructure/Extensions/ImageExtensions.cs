@@ -255,17 +255,75 @@ namespace Infrastructure.Extensions
             return features_new;
         }
 
-
         public static List<int> CalculateOffsets(this Bitmap img)
+        {
+            var result = new List<int>();
+            var width = img.Width;
+            var height = img.Height;
+
+            dynamic offsetIndexes = img.CalculateOffsetIndexes();
+            result.Add(offsetIndexes.xFirstDarkPixelIndex);
+            result.Add(width - offsetIndexes.xLastDarkPixelIndex - 1);
+            result.Add(offsetIndexes.yFirstDarkPixelIndex);
+            result.Add(height - offsetIndexes.yLastDarkPixelIndex - 1);
+            return result;
+        }
+
+        public static List<int> CalculateOffsetDiffs(this Bitmap img)
+        {
+            var result = new List<int>();
+            var width = img.Width;
+            var height = img.Height;
+
+            dynamic offsetIndexes = img.CalculateOffsetIndexes();
+            //X
+            var diffX = offsetIndexes.xFirstDarkPixelIndex - (width - offsetIndexes.xLastDarkPixelIndex - 1);
+            if (diffX == 0)
+            {
+                result.Add(0);
+                result.Add(0);
+            }
+            else if (diffX > 0)
+            {
+                result.Add(Math.Abs(diffX));
+                result.Add(0);
+            }
+            else if (diffX < 0)
+            {
+                result.Add(0);
+                result.Add(Math.Abs(diffX));
+
+            }
+            //Y
+            var diffY = offsetIndexes.yFirstDarkPixelIndex - (height - offsetIndexes.yLastDarkPixelIndex - 1);
+            if (diffY == 0)
+            {
+                result.Add(0);
+                result.Add(0);
+            }
+            else if (diffY > 0)
+            {
+                result.Add(Math.Abs(diffY));
+                result.Add(0);
+            }
+            else if (diffY < 0)
+            {
+                result.Add(0);
+                result.Add(Math.Abs(diffY));
+
+            }
+            return result;
+        }
+
+
+        private static dynamic CalculateOffsetIndexes(this Bitmap img)
         {
             //variables
             var xFirstDarkPixelIndex = 0;
             var xLastDarkPixelIndex = 0;
             var yFirstDarkPixelIndex = 0;
             var yLastDarkPixelIndex = 0;
-            var result = new List<int>();
-            var width = img.Width;
-            var height = img.Height;
+
 
             //process matrix by column
             var featuresByColumn = img.ConvertImageToTwoDimensionArray();
@@ -317,46 +375,16 @@ namespace Infrastructure.Extensions
 
             }
 
+            return new
+            {
+                xFirstDarkPixelIndex = xFirstDarkPixelIndex,
+                xLastDarkPixelIndex = xLastDarkPixelIndex,
+                yFirstDarkPixelIndex = yFirstDarkPixelIndex,
+                yLastDarkPixelIndex = yLastDarkPixelIndex
+
+            };
 
 
-
-            //X
-            var diffX = xFirstDarkPixelIndex - (width - xLastDarkPixelIndex - 1);
-            if (diffX == 0)
-            {
-                result.Add(0);
-                result.Add(0);
-            }
-            else if (diffX > 0)
-            {
-                result.Add(Math.Abs(diffX));
-                result.Add(0);
-            }
-            else if (diffX < 0)
-            {
-                result.Add(0);
-                result.Add(Math.Abs(diffX));
-
-            }
-            //Y
-            var diffY = yFirstDarkPixelIndex - (height - yLastDarkPixelIndex - 1);
-            if (diffY == 0)
-            {
-                result.Add(0);
-                result.Add(0);
-            }
-            else if (diffY > 0)
-            {
-                result.Add(Math.Abs(diffY));
-                result.Add(0);
-            }
-            else if (diffY < 0)
-            {
-                result.Add(0);
-                result.Add(Math.Abs(diffY));
-
-            }
-            return result;
         }
 
         public static Bitmap CropFromBitmap(this Bitmap source, Rectangle rec, GraphicsUnit graphicsUnit = GraphicsUnit.Pixel)

@@ -67,7 +67,7 @@ namespace SingleCharacterCollectTest
 
 
         [TestMethod]
-        public void EvenOffsetCalTest()
+        public void OffsetDiffTest()
         {
             int[][] features = new int[4][];
 
@@ -76,7 +76,7 @@ namespace SingleCharacterCollectTest
             features[2] = new int[4] { (int)MyColor.BLACK, (int)MyColor.BLACK, (int)MyColor.BLACK, (int)MyColor.WHITE };
             features[3] = new int[4] { (int)MyColor.BLACK, (int)MyColor.BLACK, (int)MyColor.BLACK, (int)MyColor.WHITE };
             var img = features.ConvertTwoDimensionArrayToImage();
-            var offsets = img.CalculateOffsets();
+            var offsets = img.CalculateOffsetDiffs();
             Assert.IsTrue(offsets[0] == 2);
             Assert.IsTrue(offsets[1] == 0);
             Assert.IsTrue(offsets[2] == 0);
@@ -84,7 +84,24 @@ namespace SingleCharacterCollectTest
         }
 
         [TestMethod]
-        public void EvenOffsetCalTest1()
+        public void OffsetDiffTest1()
+        {
+            int[][] features = new int[4][];
+
+            features[0] = new int[4] { (int)MyColor.WHITE, (int)MyColor.WHITE, (int)MyColor.WHITE, (int)MyColor.WHITE };
+            features[1] = new int[4] { (int)MyColor.WHITE, (int)MyColor.WHITE, (int)MyColor.WHITE, (int)MyColor.WHITE };
+            features[2] = new int[4] { (int)MyColor.WHITE, (int)MyColor.BLACK, (int)MyColor.BLACK, (int)MyColor.WHITE };
+            features[3] = new int[4] { (int)MyColor.WHITE, (int)MyColor.WHITE, (int)MyColor.WHITE, (int)MyColor.WHITE };
+            var img = features.ConvertTwoDimensionArrayToImage();
+            var offsets = img.CalculateOffsetDiffs();
+            Assert.IsTrue(offsets[0] == 1);
+            Assert.IsTrue(offsets[1] == 0);
+            Assert.IsTrue(offsets[2] == 0);
+            Assert.IsTrue(offsets[3] == 0);
+        }
+
+        [TestMethod]
+        public void OffsetCalTest()
         {
             int[][] features = new int[4][];
 
@@ -94,10 +111,10 @@ namespace SingleCharacterCollectTest
             features[3] = new int[4] { (int)MyColor.WHITE, (int)MyColor.WHITE, (int)MyColor.WHITE, (int)MyColor.WHITE };
             var img = features.ConvertTwoDimensionArrayToImage();
             var offsets = img.CalculateOffsets();
-            Assert.IsTrue(offsets[0] == 1);
-            Assert.IsTrue(offsets[1] == 0);
-            Assert.IsTrue(offsets[2] == 0);
-            Assert.IsTrue(offsets[3] == 0);
+            Assert.IsTrue(offsets[0] == 2);
+            Assert.IsTrue(offsets[1] == 1);
+            Assert.IsTrue(offsets[2] == 1);
+            Assert.IsTrue(offsets[3] == 1);
         }
     }
 }
