@@ -1,12 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
-using System.Drawing;
-using Infrastructure.Services;
 using System.Collections.Generic;
 using Infrastructure.Extensions;
-using System.Linq;
-using System.Collections.Generic;
 using Infrastructure.Models;
 
 namespace SingleCharacterCollectTest
@@ -19,7 +15,7 @@ namespace SingleCharacterCollectTest
         /// </summary>
         /// 
         [TestMethod]
-        public void Test1()
+        public void FourByteToFileTest()
         {
             File.Delete("test");
             var writer = new BinaryWriter(new FileStream("test", FileMode.CreateNew));

@@ -5,7 +5,6 @@ using Infrastructure.Services;
 using Infrastructure.Models;
 using System.Configuration;
 using System.IO;
-using Infrastructure.Extensions;
 using System;
 
 namespace CharGenerator
@@ -59,27 +58,9 @@ namespace CharGenerator
                         image.bitmap = dec.DecorateImage(image.bitmap);
                     }
                 }
-
-                //if (resize)
-                //{
-                //    image.bitmap = image.bitmap.ResizeImage(newwidth, newheight);
-                //}
-
-                //if (peelOffset)
-                //{
-                //    var features = image.bitmap.ConvertImageToTwoDimensionArray();
-                //    var features_new = features.PeelOffset(peelOffsetSize);
-                //    image.bitmap = features_new.ConvertTwoDimensionArrayToImage();
-                //}
                 image.bitmap.Save($"{imagePath}/{fileName}.jpg");
             }
         }
-
-
-
-
-
-
 
     }
 

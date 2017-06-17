@@ -1,11 +1,9 @@
 ﻿using Infrastructure.Models;
 using System;
 using System.Configuration;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Infrastructure.Extensions;
 using System.Collections.Generic;
 using Infrastructure.Services;
 
@@ -166,6 +164,7 @@ namespace CharGenerator
                     }
                     else if (offsetRemoveOption == 1)
                     {
+                        //X,Y - 3,6 is tested
                         decorators.Add(new EvenAndPeelDecorator(offsetX, offsetX, offsetY, offsetY));
                     }
                     else if (offsetRemoveOption == 2)
