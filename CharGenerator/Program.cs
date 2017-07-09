@@ -40,10 +40,10 @@ namespace CharGenerator
             if (Console.ReadLine().Equals("1"))
             {
                 //font name
-                Console.WriteLine("which font?");
+                Console.WriteLine("Font Name?");
                 var fontName = Console.ReadLine();
                 //17 size is good size to produce height of 28
-                Console.WriteLine("what is the font size");
+                Console.WriteLine("Font Size");
                 var fontSize = Convert.ToInt32(Console.ReadLine());
                 //create fontdata, check against windows/google fonts
                 //lets assume that if it is not windows font then it is google font
@@ -59,7 +59,7 @@ namespace CharGenerator
 
 
                 //content
-                Console.WriteLine("what is the word you want to generate?");
+                Console.WriteLine("what is the word you want to generate? ('.' is treated as linebreak, so it supports multi lines)");
                 var word = Console.ReadLine();
 
                 var strbuilder = new StringBuilder();
@@ -67,7 +67,13 @@ namespace CharGenerator
                 if (word.Length > 1)
                 {
                     strbuilder.AppendLine();
-                    strbuilder.Append(' ', 3).Append(word).Append(' ', 3).Append(".");
+                    var words = word.Split('.').ToList();
+                    words.ForEach(x => {
+                        strbuilder.Append(' ', 3).Append(x).Append(' ', 3).Append(".");
+                        strbuilder.AppendLine();
+                    });
+                    
+
                     strbuilder.AppendLine();
                     strbuilder.Append(' ', 6).Append(".");
                 }
