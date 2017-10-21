@@ -69,7 +69,7 @@ namespace CharGenerator
                     strbuilder.AppendLine();
                     var words = word.Split('.').ToList();
                     words.ForEach(x => {
-                        strbuilder.Append(' ', 3).Append(x).Append(' ', 3).Append(".");
+                        strbuilder.Append(' ', 1).Append(x).Append(' ', 2);
                         strbuilder.AppendLine();
                     });
                     
@@ -150,7 +150,7 @@ namespace CharGenerator
                     offsetRemoveOption = Convert.ToInt32(Console.ReadLine());
 
 
-                    Console.WriteLine("specify offsets - 'X,Y'");
+                    Console.WriteLine("specify offsets - 'X,Y' - (x-3, y-6, fontsize 40), (x-2, y-4, fontsize 27)");
                     var offsets = Console.ReadLine();
                     offsetX = Convert.ToInt32(offsets.Split(',')[0]);
                     offsetY = Convert.ToInt32(offsets.Split(',')[1]);

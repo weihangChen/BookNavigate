@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Configuration;
-using Infrastructure.Models;
+using System.Linq;
 using System.IO;
+using System.Collections.Generic;
+using Infrastructure.Services;
+using Infrastructure.Models;
 
 namespace ImageSynthesizer
 {
@@ -11,6 +14,7 @@ namespace ImageSynthesizer
         static string _fontDataDirDest = ConfigurationManager.AppSettings["FontDataDirDest"];
         static string _fontDataDir = ConfigurationManager.AppSettings["FontDataDir"];
         static string _mnistDir = ConfigurationManager.AppSettings["MNISTDest"];
+        static string _twoLetters = ConfigurationManager.AppSettings["TwoLetters"];
         static int synthesizeCount = 5;
 
         //normallly we run command 2 then command 1, when byte file for image and label are generated
@@ -35,11 +39,21 @@ namespace ImageSynthesizer
             //generating the byte files for image/label
 
             Console.WriteLine("unpack mnist byte files into images - 3");
+            LabelConfig labelConfig = null;
+            if (_twoLetters.Equals("1"))
+            {
+                labelConfig = new TwoLetterConfig();
+
+            }else
+            {
+                var allSingleChars = ConfigurationManager.AppSettings["GeneratedChars"];
+                labelConfig = new SingleLetterConfig(allSingleChars);
+            }
 
             var command = Console.ReadLine();
             if (command.Equals("1"))
             {
-                ByteFileGenerator.GenerateByteFile(_fontDataDirDest, size);
+                ByteFileGenerator.GenerateByteFile(_fontDataDirDest, size, labelConfig);
             }
             else if (command.Equals("2"))
             {
@@ -56,15 +70,13 @@ namespace ImageSynthesizer
                 Console.WriteLine("should make background black? (true/false)");
                 var colorInvert = Convert.ToBoolean(Console.ReadLine());
 
-                //create dirs for the chars
-                var tobeGeneratedChars = ConfigurationManager.AppSettings["GeneratedChars"];
-                DirGenerator.CreateDirs(tobeGeneratedChars, _fontDataDirDest);
-
+                //create dirs for the chars or two letters
+                labelConfig.LabelDatas.ForEach(ld => { DirGenerator.CreateDir(ld.Label, _fontDataDirDest); });
+                
                 Directory.CreateDirectory(_fontDataDir);
                 Directory.CreateDirectory(_fontDataDirDest);
                 ImageGenerator.GenerateImages(_fontDataDir,
                                               _fontDataDirDest,
-                                              tobeGeneratedChars,
                                               shouldSynthesize,
                                               synthesizeCount,
                                               copy,

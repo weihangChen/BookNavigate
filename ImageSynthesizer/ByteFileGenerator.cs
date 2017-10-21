@@ -18,7 +18,7 @@ namespace ImageSynthesizer
         /// 
         /// shuffle will make sure that the imagedata are organized in random order, so machine learning training don't need to shuffle it 
         /// </summary>
-        public static void GenerateByteFile(string fontDataDirDest, int size)
+        public static void GenerateByteFile(string fontDataDirDest, int size, LabelConfig labelConfig)
         {
             var imageData = ConfigurationManager.AppSettings["ImageData"];
             var imageLabel = ConfigurationManager.AppSettings["ImageLabel"];
@@ -26,44 +26,29 @@ namespace ImageSynthesizer
             File.Delete(imageLabel);
 
 
-
-
-            //get the total count
-            var total = 0;
-            foreach (var folder in Directory.GetDirectories(fontDataDirDest))
-            {
-                var tmp = folder.Split('\\');
-                var charIdentity = StringResources.FolderToLetterMapping[tmp[tmp.Length - 1]];
-                total += Directory.GetFiles(folder).Count();
-
-            }
-
-
-
             Dictionary<string, List<ImageData>> alldata = new Dictionary<string, List<ImageData>>();
 
 
-            
+
             foreach (var folder in Directory.GetDirectories(fontDataDirDest))
             {
-                var tmp = folder.Split('\\');
-                var charIdentity = StringResources.FolderToLetterMapping[tmp[tmp.Length - 1]];
+                var folderName = folder.Split('\\');
+                var ld = labelConfig.LabelDatas.Single(x => x.LabelAsFolderName.Equals(folderName[folderName.Length - 1]));
                 var imageDatasPerChar = new List<ImageData>();
 
                 foreach (var file in Directory.GetFiles(folder))
                 {
-                    imageDatasPerChar.Add(new ImageData { Path = file, Label = charIdentity });
+                    imageDatasPerChar.Add(new ImageData { Path = file, Label = ld.Label, LabelAsInt = ld.LabelAsInt });
                 }
                 //shuffle each dataset for each char
-                
                 imageDatasPerChar.Shuffle();
-                alldata[charIdentity] = imageDatasPerChar;
+                alldata[ld.Label] = imageDatasPerChar;
             }
 
             //split 50% of all char data as training data and 50% as test data, both test / train collection holds a equal distribution for all chars
             var testDatas = new List<ImageData>();
             var trainDatas = new List<ImageData>();
-           
+
             foreach (KeyValuePair<string, List<ImageData>> entry in alldata)
             {
                 var data = entry.Value.OrderBy(x => x.Label).ToList();
@@ -73,34 +58,30 @@ namespace ImageSynthesizer
                 trainDatas.AddRange(trainD);
                 var testD = data.Skip(offset).Take(count - offset).ToList();
                 testDatas.AddRange(testD);
-                
+
             }
             //merge test and train dataset
             var imageDatas = new List<ImageData>();
             trainDatas.Shuffle();
             testDatas.Shuffle();
-          
+
             imageDatas.AddRange(trainDatas);
             imageDatas.AddRange(testDatas);
-            
+
             //write data to file
             var labelWriter = new BinaryWriter(new FileStream(imageLabel, FileMode.CreateNew));
             var imageDataWriter = new BinaryWriter(new FileStream(imageData, FileMode.CreateNew));
+            var total = Directory.GetDirectories(fontDataDirDest).Sum(folder => Directory.GetFiles(folder).Count());
             WriteDataToFile(imageDatas, labelWriter, imageDataWriter, total, size);
 
             //data integrity check
-            var labels = imageDatas.Select(x => LabelStringToInt(x.Label)).ToList();
+
+            var labels = imageDatas.Select(x => x.LabelAsInt).ToList();
             VerifyLabelByteFile(imageLabel, labels);
             VerifyImageDataByteFile(imageData, imageDatas.Count(), size);
 
         }
 
-        private static int LabelStringToInt(string label)
-        {
-            var labelAsInt = Convert.ToInt32(StringResources.LetterToByteMapping[label]);
-            return labelAsInt;
-
-        }
 
         public static void WriteDataToFile(List<ImageData> imageDatas, BinaryWriter labelWriter, BinaryWriter imageDataWriter, int total, int size)
         {
@@ -110,8 +91,7 @@ namespace ImageSynthesizer
             labelWriter.WriteInt32BigEndian(total);
             foreach (var data in imageDatas)
             {
-                var labelAsInt = LabelStringToInt(data.Label);
-                labelWriter.Write((byte)labelAsInt);
+                labelWriter.Write((byte)data.LabelAsInt);
             }
             labelWriter.Flush();
             labelWriter.Close();

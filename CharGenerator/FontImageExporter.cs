@@ -1,50 +1,43 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using Infrastructure.Services;
 using Infrastructure.Models;
 using System.Configuration;
 using System.IO;
-using System;
 
 namespace CharGenerator
 {
 
     public class FontImageExporter
     {
-
         public static DirectoryInfo dir = new DirectoryInfo(ConfigurationManager.AppSettings["ExportDir"]);
         public static string BigString = ConfigurationManager.AppSettings["GeneratedChars"];
-
+        public static string _twoLetters = ConfigurationManager.AppSettings["TwoLetters"];
 
         public void ExportFontData(List<FontData> fontDatas, List<ImageDecorator> decorators)
         {
+            LabelConfig labelConfig = null;
+            if (_twoLetters.Equals("1"))
+            {
+                labelConfig = new TwoLetterConfig();
+            }
+            else
+            {
+                labelConfig = new SingleLetterConfig(BigString);
+            }
+
             foreach (var fontdata in fontDatas)
             {
                 var imagePath = Path.Combine(dir.ToString(), fontdata.FontName);
                 Directory.CreateDirectory(imagePath);
-
-
-                BigString.ToList().ForEach(letter =>
+                labelConfig.LabelDatas.ForEach(ld =>
                 {
-                    try
-                    {
-                        var txt = letter.ToString();
-                        var fileName = StringResources.LetterMapping[txt];
-                        SaveOneImage(txt, fileName, fontdata, imagePath, decorators);
-                    }
-                    catch (Exception e)
-                    {
-                        throw e;
-                    }
+                    SaveOneImage(ld.Label, ld.LabelAsFolderName, fontdata, imagePath, decorators);
                 });
-
             }
         }
 
-        //public void SaveOneImage(string txt, string fileName, FontData fontdata, string imagePath, bool resize = false, int newwidth = 0, int newheight = 0, bool peelOffset = false, int peelOffsetSize = 0)
         public void SaveOneImage(string txt, string fileName, FontData fontdata, string imagePath, List<ImageDecorator> imgDecorators = null)
-
         {
             var image = new ImageData { Text = txt };
             var drawer = new TextDrawer();

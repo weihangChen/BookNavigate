@@ -37,7 +37,6 @@ namespace ImageSynthesizer
 
         public static void GenerateImages(string FontDataDir,
                                           string FontDataDirDest,
-                                          string TobeGeneratedChars,
                                           bool shouldSynthesize,
                                           int synthesizeCount,
                                           int copy,
@@ -56,8 +55,7 @@ namespace ImageSynthesizer
                     {
                         var img = Image.FromFile(file) as Bitmap;
                         var charIdentity = Path.GetFileNameWithoutExtension(file);
-                        if (!TobeGeneratedChars.Contains(charIdentity))
-                            continue;
+                        
                         var charFolder = Path.Combine(FontDataDirDest, charIdentity);
 
                         //for every single image, generate 5 synthesized ones

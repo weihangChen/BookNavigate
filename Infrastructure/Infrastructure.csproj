@@ -97,6 +97,7 @@
     <Compile Include="Models\MyColor.cs" />
     <Compile Include="Models\StringResources.cs" />
     <Compile Include="Models\TrainingDataDTO.cs" />
+    <Compile Include="Models\LabelConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IDGenerator.cs" />
     <Compile Include="Services\ImageDecorator.cs" />

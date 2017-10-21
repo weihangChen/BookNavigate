@@ -14,7 +14,7 @@ namespace ImageSynthesizer
         public static void UnpackByteFileToImages(string lablePath, string imagePath, string dest, bool resaveByteFiles, bool saveImages, bool orderbylabel)
         {
             //create 10 directories under the specific root dir
-            DirGenerator.CreateDirs(StringResources.Digits, dest);
+            DirGenerator.CreateDirs(StringResources.Digits.Select(x=>x.ToString()).ToList(), dest);
             //create stream and reader for label and image byte file reading
             var labelStream = new FileStream(lablePath, FileMode.Open, FileAccess.Read);
             var labelReader = new BinaryReader(labelStream);
